@@ -6,6 +6,8 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
+import com.jogamp.opengl.awt.GLJPanel;
+import java.awt.Graphics;
 
 public class BasicFrame implements GLEventListener{
     public static void main(String args[]){
@@ -13,13 +15,15 @@ public class BasicFrame implements GLEventListener{
         final GLProfile profile = GLProfile.get(GLProfile.GL3bc);
         GLCapabilities cap = new GLCapabilities(profile);
 
-        final GLCanvas glcanvas = new GLCanvas(cap);
+        final GLJPanel glcanvas = new GLJPanel(cap);
 
         BasicFrame b = new BasicFrame();
         final Frame frame = new Frame("Basic Frame");
 
         glcanvas.addGLEventListener(b);
         glcanvas.setSize(400, 400);
+        Graphics g2d = glcanvas.getGraphics();
+        
 
         frame.add(glcanvas);
 
