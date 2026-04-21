@@ -4,16 +4,11 @@
     },
     "features": {
       "ghcr.io/devcontainers/features/desktop-lite:1": {
+        "noVncVersion": "1.6.0",
         "password": "vscode",
         "webPort": "6080",
         "vncPort": "5901"
       }
     },
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "vscjava.vscode-java-pack"
-        ]
-      }
-    }
+    
   }
