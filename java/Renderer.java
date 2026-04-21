@@ -157,33 +157,33 @@ public class Renderer {
         gl.glFlush();
 			             
         if(imageTexture != null){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, imageTexture.getTextureObject());
+            gl2.glBindTexture(GL2.GL_TEXTURE_2D, image3Texture.getTextureObject());
         }
 
         TextureCoords texcoords = imageTexture.getImageTexCoords();
-        for(int i = 0; i < 10; i ++){
-            for(int k = 0; k < 10; k++){
+        for(int i = 0; i < 6; i ++){
+            for(int k = 0; k < 6; k++){
                 gl.glLoadIdentity();        
 
-                gl.glTranslatef(-(float) Camera.getX(),-1.5f + (float)Camera.getY() * (float)Math.sin(Math.PI/6), -(float)Camera.getY() * (float)Math.cos(Math.PI/6) + 0.7f); 
-                gl.glRotatef(30f, 1.0f, 0f, 0f);
+                gl.glTranslatef(-(float) Camera.getX(),-2f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 0.5f); 
+                gl.glRotatef(45f, 1.0f, 0f, 0f);
 
                 gl.glBegin(GL2.GL_QUADS);               
                 
                     gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-                    gl.glVertex3f(0.0f + 0.2f*(float)i, 0f, 0.0f + 0.2f*(float)k);
+                    gl.glVertex3f(0.0f + 1f*(float)i, 0f, 0.0f + 1f*(float)k);
                     
                     
                     gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-                    gl.glVertex3f( 0.2f + 0.2f*(float)i, 0f, 0.0f + 0.2f*(float)k); 
+                    gl.glVertex3f( 1f + 1f*(float)i, 0f, 0.0f + 1f*(float)k); 
 
 
                     gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-                    gl.glVertex3f( 0.2f + 0.2f*(float)i, 0f, 0.2f + 0.2f*(float)k);     
+                    gl.glVertex3f( 1f + 1f*(float)i, 0f, 1f + 1f*(float)k);     
                     
                     
                     gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-                    gl.glVertex3f(0.0f + 0.2f*(float)i, 0f, 0.2f + 0.2f*(float)k);   
+                    gl.glVertex3f(0.0f + 1f*(float)i, 0f, 1f + 1f*(float)k);   
                     
                     
                 gl.glEnd();                            
@@ -210,7 +210,7 @@ public class Renderer {
         // For cliffs: each tile is 1 wide by like 3 tall and is an image of the cliff
         // Get the chunk images on world load.
         // For animations: do a check (isAnimated) and create a texture for each frame of the animation.
-        
+
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
