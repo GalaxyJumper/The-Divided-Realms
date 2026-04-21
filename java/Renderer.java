@@ -64,19 +64,7 @@ public class Renderer {
         });
 
         
-        frame.add( glcanvas );
-
-        // Commented out because of exception
-
-        // frame.addWindowListener( new WindowAdapter() {
-        //     public void windowClosing( WindowEvent windowevent ) {
-        //         frame.remove( glcanvas );
-        //         frame.dispose();
-        //         System.exit( 0 );
-        //     }
-        // });
-        // 
-        
+        frame.add( glcanvas );        
 
         frame.setSize( 1080, 720 );
         frame.setVisible( true );
@@ -84,8 +72,7 @@ public class Renderer {
         frame.addKeyListener(GameLoop.input);
         frame.setFocusable(true);
         frame.requestFocusInWindow();
-        System.out.println("registered input");
-        System.out.println("Init complete");
+        System.out.println("[Renderer] Completed init");
     }
 
     protected static void setup( GL2 gl2, int width, int height ) {
@@ -110,13 +97,14 @@ public class Renderer {
 
         
 		gl2.glViewport(0, 0, width, height);
+
 		gl2.glMatrixMode(GL2.GL_PROJECTION);
+
 		gl2.glLoadIdentity();
+
 		glu.gluPerspective(45.0f, (float)width / (float) height, 1.0, 20.0);
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
-        
-        gl2.glViewport( 0, 0, width, height );
 
         gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
         
@@ -173,8 +161,8 @@ public class Renderer {
         }
 
         TextureCoords texcoords = imageTexture.getImageTexCoords();
-        for(int i = 0; i < 20; i ++){
-            for(int k = 0; k < 20; k++){
+        for(int i = 0; i < 10; i ++){
+            for(int k = 0; k < 10; k++){
                 gl.glLoadIdentity();        
 
                 gl.glTranslatef(-(float) Camera.getX(),-1.5f + (float)Camera.getY() * (float)Math.sin(Math.PI/6), -(float)Camera.getY() * (float)Math.cos(Math.PI/6) + 0.7f); 
@@ -183,19 +171,19 @@ public class Renderer {
                 gl.glBegin(GL2.GL_QUADS);               
                 
                     gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-                    gl.glVertex3f(0.0f + 0.1f*(float)i, 0f, 0.0f + 0.1f*(float)k);
+                    gl.glVertex3f(0.0f + 0.2f*(float)i, 0f, 0.0f + 0.2f*(float)k);
                     
                     
                     gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-                    gl.glVertex3f( 0.1f + 0.1f*(float)i, 0f, 0.0f + 0.1f*(float)k); 
+                    gl.glVertex3f( 0.2f + 0.2f*(float)i, 0f, 0.0f + 0.2f*(float)k); 
 
 
                     gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-                    gl.glVertex3f( 0.1f + 0.1f*(float)i, 0f, 0.1f + 0.1f*(float)k);     
+                    gl.glVertex3f( 0.2f + 0.2f*(float)i, 0f, 0.2f + 0.2f*(float)k);     
                     
                     
                     gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-                    gl.glVertex3f(0.0f + 0.1f*(float)i, 0f, 0.1f + 0.1f*(float)k);   
+                    gl.glVertex3f(0.0f + 0.2f*(float)i, 0f, 0.2f + 0.2f*(float)k);   
                     
                     
                 gl.glEnd();                            
@@ -218,6 +206,11 @@ public class Renderer {
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, image2Texture.getTextureObject());
 
         // Render player
+        // TODO: Meshing logic: Get the texture of a chunk and draw that instead
+        // For cliffs: each tile is 1 wide by like 3 tall and is an image of the cliff
+        // Get the chunk images on world load.
+        // For animations: do a check (isAnimated) and create a texture for each frame of the animation.
+        
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());

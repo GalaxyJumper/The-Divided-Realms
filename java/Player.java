@@ -31,9 +31,25 @@ public class Player {
             xDir = 1;
         }
         if(input.getKey(KeyEvent.VK_SHIFT) && (int) System.currentTimeMillis() - lastDash > 1000){
-            double magnitude = Math.sqrt(yVel*yVel + xVel*xVel);
-            xVel = (xVel / magnitude) * 0.03;
-            yVel = (yVel / magnitude) * 0.03;
+            if(input.getKey(KeyEvent.VK_W)){
+                yVel -= 0.03;
+                yDir = -1;
+            }
+            
+            if(input.getKey(KeyEvent.VK_A)){
+                xVel -= 0.03;
+                xDir = -1;
+            }
+            
+            if(input.getKey(KeyEvent.VK_S)){
+                yVel += 0.03;
+                yDir = 1;
+            }
+            
+            if(input.getKey(KeyEvent.VK_D)){
+                xVel += 0.03;
+                xDir = 1;
+            }
             lastDash = (int) System.currentTimeMillis();
         }
 
