@@ -9,6 +9,13 @@
             "name": "Main",
             "request": "launch",
             "mainClass": "Main",
+            "projectName": "The-Divided-Realms_74bd3f64"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "Main",
             "projectName": "The-Divided-Realms_3ed13817",
             "args": [
                 "--add-exports java.base/java.lang=ALL-UNNAMED",
@@ -17,7 +24,6 @@
                 "--illegal-access=permit"
             ],
             "vmArgs": "--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=permit"
-
         },
         {
             "type": "java",

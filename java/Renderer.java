@@ -78,7 +78,7 @@ public class Renderer {
         // 
         
 
-        frame.setSize( 2160, 1440 );
+        frame.setSize( 1080, 720 );
         frame.setVisible( true );
         
         frame.addKeyListener(GameLoop.input);
@@ -123,7 +123,7 @@ public class Renderer {
         try {
             player1Idle = Images.readSpriteSheetToBufferedImage(images.getImage("player1Idle"), glprofile, 2, 2);
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
-            imageTexture = Renderer.getTextureFromFile(new File("img\\tile_grass.png"));
+            imageTexture = Renderer.getTextureFromFile(new File("img/tile_grass.png"));
             image2Texture = playerIdle[2];
             image3Texture = Renderer.getTextureFromFile(new File("img/Imagation.png"));
             
