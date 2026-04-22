@@ -2,6 +2,51 @@ import java.io.File;
 import java.util.Scanner;
 
 public class Map {
+    Chunk[][] mapData;
+    int widthChunks;
+
+    int heightChunks;
+
+    static int currentMapNum = 1;
+    static Map[] maps = new Map[]{
+        new Map("maps/map1.map", 6, 4)
+    };
+
+    public Map(String filePath, int widthChunks, int heightChunks){
+        this.heightChunks = heightChunks;
+        this.widthChunks = widthChunks;
+        mapData = new Chunk[heightChunks][widthChunks];
+        loadMap(filePath);
+    }
+    public void loadMap(String filePath){
+        for(int x = 0; x < widthChunks; x++){
+            for(int y = 0; y < heightChunks; y++){
+                mapData[y][x] = new Chunk(loadChunk(x, y, filePath), x, y);
+           }
+        }
+    }
+
+    // Get tile at any location on the map
+    public String getTile(int x, int y){
+        if(x > widthChunks * 10 || x < 0) return "";
+        if(y > widthChunks * 10 || y < 0) return "";
+        return mapData[y / 10][x / 10].getTile(x % 10, y % 10);
+    }
+
+    public Chunk getChunk(int xChunks, int yChunks){
+        return mapData[yChunks][xChunks];
+    }
+    
+    public int getHeightChunks() {
+        return heightChunks;
+    }
+
+    public int getWidthChunks() {
+        return widthChunks;
+    }
+
+    ////////////////////////// STATIC (UTILITY) METHODS //////////////////////////
+
     public static String[][] loadChunk(int chunkX, int chunkY, String filePath){
         // A single line of text in the file
         String line;
@@ -43,5 +88,19 @@ public class Map {
             s.close(); // Make sure no memory leaks sneak their way out
         }catch(Exception e){e.printStackTrace();}
         return chunk;
+    }
+
+    public static void setCurrentMap(int mapNum){
+        if(mapNum > maps.length){
+            mapNum = maps.length;
+        }
+        if(mapNum <= 0){
+            mapNum = 1;
+        }
+        currentMapNum = mapNum;
+    }
+
+    public static Map currentMap(){
+        return maps[currentMapNum - 1];
     }
 }

@@ -1,6 +1,3 @@
-import com.jogamp.newt.event.WindowAdapter;
-import com.jogamp.newt.event.WindowListener;
-import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -9,10 +6,8 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureCoords;
-import com.jogamp.opengl.util.texture.TextureIO;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
 import java.awt.AlphaComposite;
@@ -25,6 +20,8 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
 public class Renderer {
     
     static GLProfile glprofile = GLProfile.getDefault();
@@ -35,11 +32,10 @@ public class Renderer {
     static final GLCanvas glcanvas = new GLCanvas( glcapabilities );
     static final Frame frame = new Frame( "Divided Realms Re-attempt" );
 
-    static Texture imageTexture = null;
-    static Texture image2Texture= null;
-    static Texture image3Texture= null;
+    static Texture bgTexture= null;
+    static Texture[][] mapTextures = null; 
     static Texture[] playerIdle = null;
-    static BufferedImage[] player1Idle = null;
+    static Animation playerAnimation = new Animation(images.getImage("player1shortdash"), 0, 0, 0, 0, false);
 
     public static void init(){
         glcanvas.addGLEventListener( new GLEventListener() {
@@ -111,17 +107,18 @@ public class Renderer {
         gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
         
         try {
-            player1Idle = Images.readSpriteSheetToBufferedImage(images.getImage("player1Idle"), glprofile, 2, 2);
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
-            imageTexture = Renderer.getChunkTexture(Map.loadChunk(1, 0, "maps/map1.map"));
-            image2Texture = playerIdle[2];
-            image3Texture = Renderer.getTextureFromFile(new File("img/Imagation.png"));
-            
+            bgTexture = Renderer.getTextureFromFile(new File("img/Imagation.png"));
+            mapTextures = new Texture[Map.currentMap().getHeightChunks()][Map.currentMap().getWidthChunks()];
+            for(int i = 0; i < mapTextures.length; i++){
+                for(int k = 0; k < mapTextures[i].length; k++){
+                    mapTextures[i][k] = Renderer.getChunkTexture(Map.currentMap().getChunk(k, i).getData());
+                }   
+            }
 
         }
         catch(IOException e){
             e.printStackTrace();
-            imageTexture = null;
         }
 
     }
@@ -133,9 +130,9 @@ public class Renderer {
 	    gl.glLoadIdentity();                
         
         
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, image3Texture.getTextureObject());
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
 
-        TextureCoords texcoords2 = image3Texture.getImageTexCoords();
+        TextureCoords texcoords2 = bgTexture.getImageTexCoords();
 
         gl.glBegin(GL2.GL_QUADS);               
         
@@ -157,14 +154,13 @@ public class Renderer {
             
         gl.glEnd();                            
         gl.glFlush();
-			             
-        if(imageTexture != null){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, imageTexture.getTextureObject());
-        }
+        
+        for(int i = 0; i < Map.currentMap().getWidthChunks(); i ++){
+            for(int k = 0; k < Map.currentMap().getHeightChunks(); k++){
 
-        TextureCoords texcoords = imageTexture.getImageTexCoords();
-        for(int i = 0; i < 6; i ++){
-            for(int k = 0; k < 6; k++){
+                gl2.glBindTexture(GL2.GL_TEXTURE_2D, mapTextures[k][i].getTextureObject());
+                TextureCoords texcoords = mapTextures[k][i].getImageTexCoords();
+
                 gl.glLoadIdentity();        
 
                 gl.glTranslatef(-(float) Camera.getX(),-2f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 0.5f); 
@@ -203,15 +199,15 @@ public class Renderer {
             imageNumIDK += 1;
         }
 
-        image2Texture = playerIdle[imageNumIDK];
-
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, image2Texture.getTextureObject());
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, playerIdle[imageNumIDK].getTextureObject());
 
         // Render player
         // TODO: Meshing logic: Get the texture of a chunk and draw that instead
         // For cliffs: each tile is 1 wide by like 3 tall and is an image of the cliff
         // Get the chunk images on world load.
         // For animations: do a check (isAnimated) and create a texture for each frame of the animation.
+
+        TextureCoords texcoords = playerIdle[imageNumIDK].getImageTexCoords();
 
         gl.glBegin(GL2.GL_QUADS);               
         
@@ -235,7 +231,21 @@ public class Renderer {
         gl.glFlush();
 
 
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, toGlass(player1Idle[imageNumIDK]), false).getTextureObject());
+        gl2.glBindTexture(
+            GL2.GL_TEXTURE_2D, 
+            AWTTextureIO.newTexture(
+                glprofile, 
+                toGlass(
+                    Images.readSpriteSheetToBufferedImage(
+                        images.getImage("player1Idle"), 
+                        glprofile, 
+                        2, 
+                        2
+                    )[imageNumIDK]
+                ), 
+                false
+            ).getTextureObject()
+        );
 
         // Render player
         gl.glBegin(GL2.GL_QUADS);               
@@ -259,181 +269,7 @@ public class Renderer {
         gl.glEnd();                            
         gl.glFlush();
     }
-
-
-
-    public static void renderImageTexture(GL2 gl2, Texture imageTex, int x, int y, int width, int height){
-        if(imageTexture != null){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, imageTex.getTextureObject());
-        }
-
-
-        TextureCoords texcoords = imageTex.getImageTexCoords();
-        gl2.glTranslatef(x, y, 0);
-
-        gl2.glBegin(GL2.GL_QUADS);
-            gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex3f(0, 0, 0f);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex3f(width, 0, 0f);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex3f(width, height, 0f);
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex2f(0, height);
-        gl2.glEnd();
-        gl2.glFlush();
-
-        gl2.glTranslatef(-x, -y, 0);
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-    }
-    public static void renderImageTexture(GL2 gl2, Texture imageTex, int x, int y){
-                if(imageTexture != null){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, imageTex.getTextureObject());
-        }
-        TextureCoords texcoords = imageTex.getImageTexCoords();
-        gl2.glTranslatef(x, y, 0);
-
-        gl2.glBegin(GL2.GL_QUADS);
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex2f(0, 0);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex2f(imageTex.getWidth(), 0);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex2f(imageTex.getWidth(), imageTex.getHeight());
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex2f(0, imageTex.getHeight());
-            
-        gl2.glEnd();
-        gl2.glFlush();
-
-        gl2.glTranslatef(-x, -y, 0);
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-    }
-    public static void renderImageTesture(GL2 gl2, Texture imageTex, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
-        if(imageTexture != null){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, imageTex.getTextureObject());
-        }
-        TextureCoords texcoords = imageTex.getImageTexCoords();
-
-        gl2.glBegin(GL2.GL_QUADS);
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex2f(x1, y1);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex2f(x2, y2);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex2f(x3, y3);
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex2f(x4, y4);
-            
-        gl2.glEnd();
-        gl2.glFlush();
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-    }
-    public static void renderImageQuad(GL2 gl2, Texture imageTex, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4){
-        double a1 = y3 - y1;
-        double b1 = x1 - x3;
-        double c1 = a1*(x1) + b1*(y1);
-     
-        // Line CD represented as a2x + b2y = c2
-        double a2 = y4 - y2;
-        double b2 = x2 - x4;
-        double c2 = a2*(x2)+ b2*(y2);
-     
-        double determinant = a1*b2 - a2*b1;
-
-        
-        int quadCenterX1 = (int)((x1 + x2 + x3 + x4) / 4);
-        int quadCenterY1 = (int)((y1 + y2 + y3 + y4) / 4);
-        
-        int quadCenterX2 = (int)((b2*c1 - b1*c2)/determinant);
-        int quadCenterY2 = (int)((a1*c2 - a2*c1)/determinant);
-
-        int quadCenterX = quadCenterX2;
-        int quadCenterY = quadCenterY2;
-
-        if(imageTexture != null){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, imageTex.getTextureObject());
-        }
-        TextureCoords texcoords = imageTex.getImageTexCoords();
-
-        // LEFT
-        gl2.glBegin(GL2.GL_TRIANGLES);
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex2f(x1, y1);
-
-            gl2.glTexCoord2f(texcoords.right() / 2, texcoords.top() / 2);
-            gl2.glVertex2f(quadCenterX, quadCenterY);
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex2f(x4, y4);
-
-            
-        gl2.glEnd();
-
-        // BOTTOM
-        gl2.glBegin(GL2.GL_TRIANGLES);
-        
-            gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex2f(x1, y1);
-
-            
-            gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex2f(x2, y2);
-
-            gl2.glTexCoord2f(texcoords.right() / 2, texcoords.top() / 2);
-            gl2.glVertex2f(quadCenterX, quadCenterY);
-        
-            
-        gl2.glEnd();
-
-        // RIGHT
-        gl2.glBegin(GL2.GL_TRIANGLES);         
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex2f(x2, y2);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex2f(x3, y3);
-
-            gl2.glTexCoord2f(texcoords.right() / 2, texcoords.top() / 2);
-            gl2.glVertex2f(quadCenterX, quadCenterY);
-
-        gl2.glEnd();
-
-        // TOP
-        gl2.glBegin(GL2.GL_TRIANGLES);
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex2f(x4, y4);
-
-            gl2.glTexCoord2f(texcoords.right() / 2, texcoords.top() / 2);
-            gl2.glVertex2f(quadCenterX, quadCenterY);
-
-            gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex2f(x3, y3);
-        
-        gl2.glEnd();
-
-
-
-        gl2.glFlush();
-
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-
-
-    }
+    
     public static void renderGame(){
         glcanvas.display();
     }
