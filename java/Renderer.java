@@ -18,7 +18,9 @@ import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -92,8 +94,8 @@ public class Renderer {
         // Set the blend function for transparency
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
         
 		gl2.glViewport(0, 0, width, height);
@@ -106,12 +108,12 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
         
         try {
             player1Idle = Images.readSpriteSheetToBufferedImage(images.getImage("player1Idle"), glprofile, 2, 2);
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
-            imageTexture = Renderer.getTextureFromFile(new File("img/tile_grass.png"));
+            imageTexture = Renderer.getChunkTexture(Map.loadChunk(1, 0, "maps/map1.map"));
             image2Texture = playerIdle[2];
             image3Texture = Renderer.getTextureFromFile(new File("img/Imagation.png"));
             
@@ -157,7 +159,7 @@ public class Renderer {
         gl.glFlush();
 			             
         if(imageTexture != null){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, image3Texture.getTextureObject());
+            gl2.glBindTexture(GL2.GL_TEXTURE_2D, imageTexture.getTextureObject());
         }
 
         TextureCoords texcoords = imageTexture.getImageTexCoords();
@@ -171,19 +173,19 @@ public class Renderer {
                 gl.glBegin(GL2.GL_QUADS);               
                 
                     gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-                    gl.glVertex3f(0.0f + 1f*(float)i, 0f, 0.0f + 1f*(float)k);
+                    gl.glVertex3f(1.0f + 1f*(float)i, 0f, 0.0f + 1f*(float)k);
                     
                     
                     gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-                    gl.glVertex3f( 1f + 1f*(float)i, 0f, 0.0f + 1f*(float)k); 
+                    gl.glVertex3f( 0.0f + 1f*(float)i, 0f, 0.0f + 1f*(float)k); 
 
 
                     gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-                    gl.glVertex3f( 1f + 1f*(float)i, 0f, 1f + 1f*(float)k);     
+                    gl.glVertex3f( 0.0f + 1f*(float)i, 0f, 1f + 1f*(float)k);     
                     
                     
                     gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-                    gl.glVertex3f(0.0f + 1f*(float)i, 0f, 1f + 1f*(float)k);   
+                    gl.glVertex3f(1.0f + 1f*(float)i, 0f, 1f + 1f*(float)k);   
                     
                     
                 gl.glEnd();                            
@@ -214,19 +216,19 @@ public class Renderer {
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        0f,   (float)Player.getyPos());
+            gl.glVertex3f((float)Player.getxPos(),        0.1f,   (float)Player.getyPos() - 0.035f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0f,   (float)Player.getyPos()); 
+            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0.1f,   (float)Player.getyPos() - 0.035f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0.1f, (float)Player.getyPos() - 0.03f);     
+            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0f, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos(),        0.1f, (float)Player.getyPos() - 0.03f);   
+            gl.glVertex3f((float)Player.getxPos(),        0f, (float)Player.getyPos());   
             
             
         gl.glEnd();                            
@@ -239,24 +241,23 @@ public class Renderer {
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        0f,   (float)Player.getyPos());
+            gl.glVertex3f((float)Player.getxPos(),        0f,   (float)Player.getyPos() + 0.1f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0f,   (float)Player.getyPos()); 
+            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0f,   (float)Player.getyPos() + 0.1f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0, (float)Player.getyPos() + 0.1f);     
+            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos(),        0, (float)Player.getyPos() + 0.1f);   
+            gl.glVertex3f((float)Player.getxPos(),        0, (float)Player.getyPos());   
             
             
         gl.glEnd();                            
         gl.glFlush();
-
     }
 
 
@@ -459,5 +460,14 @@ public class Renderer {
         g.fillRect(0, 0, image.getWidth(), image.getHeight());
         return result;
     }
-
+    public static Texture getChunkTexture(String[][] chunk){
+        BufferedImage result = new BufferedImage(240, 240, BufferedImage.TYPE_INT_RGB);
+        Graphics graphics = result.createGraphics();
+        for(int x = 0; x < 240; x += 24){
+            for(int y = 0; y < 240; y += 24){
+                graphics.drawImage((Image)images.getImage(chunk[y / 24][x / 24]), x, y, frame);
+            }
+        }
+        return AWTTextureIO.newTexture(glprofile, result, false);
+    }
 }

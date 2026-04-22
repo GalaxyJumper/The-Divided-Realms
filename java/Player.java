@@ -12,22 +12,22 @@ public class Player {
 
     public static void update(Input input){
         if(input.getKey(KeyEvent.VK_W)){
-            yVel -= 0.0005;
+            yVel -= 0.0015;
             yDir = -1;
         }
         
         if(input.getKey(KeyEvent.VK_A)){
-            xVel -= 0.0005;
+            xVel -= 0.0015;
             xDir = -1;
         }
         
         if(input.getKey(KeyEvent.VK_S)){
-            yVel += 0.0005;
+            yVel += 0.0015;
             yDir = 1;
         }
         
         if(input.getKey(KeyEvent.VK_D)){
-            xVel += 0.0005;
+            xVel += 0.0015;
             xDir = 1;
         }
         if(input.getKey(KeyEvent.VK_SHIFT) && (int) System.currentTimeMillis() - lastDash > 1000){
@@ -56,8 +56,8 @@ public class Player {
         xPos += xVel;
         yPos += yVel;
         
-        xVel *= 0.9;
-        yVel *= 0.9;
+        xVel *= 0.85;
+        yVel *= 0.85;
     }
 
     public static double getxPos() {
