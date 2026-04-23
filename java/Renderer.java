@@ -98,8 +98,6 @@ public class Renderer {
         // Set the blend function for transparency
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
         
 		gl2.glViewport(0, 0, width, height);
@@ -139,6 +137,8 @@ public class Renderer {
         
         
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
         TextureCoords texcoords2 = bgTexture.getImageTexCoords();
 
@@ -167,6 +167,8 @@ public class Renderer {
             for(int k = 0; k < Map.currentMap().getHeightChunks(); k++){
 
                 gl2.glBindTexture(GL2.GL_TEXTURE_2D, mapTextures[k][i].getTextureObject());
+                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
                 TextureCoords texcoords = mapTextures[k][i].getImageTexCoords();
 
                 gl.glLoadIdentity();        
@@ -200,6 +202,8 @@ public class Renderer {
         gl.glLoadIdentity();
 
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
         TextureCoords texcoords4 = images.getTexture("cliffgrass").getImageTexCoords();
 
         gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
@@ -227,6 +231,8 @@ public class Renderer {
                 gl.glFlush();
 
                 gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("grass").getTextureObject());
+                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
                 texcoords4 = images.getTexture("grass").getImageTexCoords();
 
                 gl.glBegin(GL2.GL_TRIANGLES);               
@@ -249,6 +255,8 @@ public class Renderer {
 
                 for(float x = 0; x < 3; x++){
                     gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("grass").getTextureObject());
+                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
                     texcoords4 = images.getTexture("grass").getImageTexCoords();
                     // TOP
                     gl.glBegin(GL2.GL_QUADS);               
@@ -273,6 +281,8 @@ public class Renderer {
                     gl.glFlush();
 
                     gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
+                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
                     texcoords4 = images.getTexture("cliffgrass").getImageTexCoords();
 
                     // Side
@@ -317,7 +327,9 @@ public class Renderer {
             dashAnimations[imageNumIDK].setStartTime(Player.getLastDash());
             gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
         }
-
+        
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
         if(Player.getState() == Player.PlayerState.ATTACKING){
 
         }
@@ -336,11 +348,11 @@ public class Renderer {
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        1f,   (float)Player.getyPos() - 0.35f);
+            gl.glVertex3f((float)Player.getxPos(),        1f,   (float)Player.getyPos() - 0.38f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 1f,   (float)Player.getyPos() - 0.35f); 
+            gl.glVertex3f((float)Player.getxPos() + 1f, 1f,   (float)Player.getyPos() - 0.38f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
@@ -370,6 +382,8 @@ public class Renderer {
                 false
             ).getTextureObject()
         );
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
         // Render player
         gl.glBegin(GL2.GL_QUADS);               
