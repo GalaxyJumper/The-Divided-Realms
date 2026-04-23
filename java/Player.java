@@ -23,22 +23,22 @@ public class Player {
         
         // Base movement
         if(input.getKey(KeyEvent.VK_W)){
-            yVel -= 0.0015;
+            yVel -= 0.015;
             yDir = -1;
         }
         
         if(input.getKey(KeyEvent.VK_A)){
-            xVel -= 0.0015;
+            xVel -= 0.015;
             xDir = -1;
         }
         
         if(input.getKey(KeyEvent.VK_S)){
-            yVel += 0.0015;
+            yVel += 0.015;
             yDir = 1;
         }
         
         if(input.getKey(KeyEvent.VK_D)){
-            xVel += 0.0015;
+            xVel += 0.015;
             xDir = 1;
         }
 
@@ -47,22 +47,22 @@ public class Player {
             double xAdd = 0;
             double yAdd = 0;
             if(input.getKey(KeyEvent.VK_W)){
-                yAdd -= 0.02;
+                yAdd -= 0.2;
                 yDir = -1;
             }
             
             if(input.getKey(KeyEvent.VK_A)){
-                xAdd -= 0.02;
+                xAdd -= 0.2;
                 xDir = -1;
             }
             
             if(input.getKey(KeyEvent.VK_S)){
-                yAdd += 0.02;
+                yAdd += 0.2;
                 yDir = 1;
             }
             
             if(input.getKey(KeyEvent.VK_D)){
-                xAdd += 0.02;
+                xAdd += 0.2;
                 xDir = 1;
             }
 
@@ -72,8 +72,8 @@ public class Player {
                 yAdd /= magnitude;
                 xAdd /= magnitude;
             }
-            yAdd *= 0.04;
-            xAdd *= 0.04;
+            yAdd *= 0.4;
+            xAdd *= 0.4;
 
             lastDash = (int) System.currentTimeMillis();
             xVel += xAdd;

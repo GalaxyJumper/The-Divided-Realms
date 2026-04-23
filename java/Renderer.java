@@ -108,7 +108,7 @@ public class Renderer {
 
 		gl2.glLoadIdentity();
 
-		glu.gluPerspective(45.0f, (float)width / (float) height, 1.0, 20.0);
+		glu.gluPerspective(45.0f, (float)width / (float) height, 1.0, 400.0);
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
@@ -145,19 +145,19 @@ public class Renderer {
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
-            gl.glVertex3f(2f, 1.125f, -3f);
+            gl.glVertex3f(20f, 11.25f, -30f);
             
             
             gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
-            gl.glVertex3f(-2f, 1.125f, -3f); 
+            gl.glVertex3f(-20f, 11.25f, -30f); 
 
 
             gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
-            gl.glVertex3f(-2f, -1.125f, -3f);     
+            gl.glVertex3f(-20f, -11.25f, -30f);     
             
             
             gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
-            gl.glVertex3f(2f, -1.125f, -3f);   
+            gl.glVertex3f(20f, -11.25f, -30f);   
             
             
         gl.glEnd();                            
@@ -171,25 +171,25 @@ public class Renderer {
 
                 gl.glLoadIdentity();        
 
-                gl.glTranslatef(-(float) Camera.getX(),-2f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 0.5f); 
+                gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
                 gl.glRotatef(45f, 1.0f, 0f, 0f);
 
                 gl.glBegin(GL2.GL_QUADS);               
                 
                     gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-                    gl.glVertex3f(1.0f + 1f*(float)i, 0f, 0.0f + 1f*(float)k);
+                    gl.glVertex3f(10f + 10f*(float)i, 0f, 0.0f + 10f*(float)k);
                     
                     
                     gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-                    gl.glVertex3f( 0.0f + 1f*(float)i, 0f, 0.0f + 1f*(float)k); 
+                    gl.glVertex3f( 0.0f + 10f*(float)i, 0f, 0.0f + 10f*(float)k); 
 
 
                     gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-                    gl.glVertex3f( 0.0f + 1f*(float)i, 0f, 1f + 1f*(float)k);     
+                    gl.glVertex3f( 0.0f + 10f*(float)i, 0f, 10f + 10f*(float)k);     
                     
                     
                     gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-                    gl.glVertex3f(1.0f + 1f*(float)i, 0f, 1f + 1f*(float)k);   
+                    gl.glVertex3f(10f + 10f*(float)i, 0f, 10f + 10f*(float)k);   
                     
                     
                 gl.glEnd();                            
@@ -202,25 +202,25 @@ public class Renderer {
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
         TextureCoords texcoords4 = images.getTexture("cliffgrass").getImageTexCoords();
 
-        gl.glTranslatef(-(float) Camera.getX(),-2f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 0.5f); 
+        gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
                 gl.glRotatef(45f, 1.0f, 0f, 0f);
 
                 gl.glBegin(GL2.GL_QUADS);               
                 
                     gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                    gl.glVertex3f(0.3f, 0.1f, 0.3f);
+                    gl.glVertex3f(3f, 1f, 3f);
                     
                     
                     gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                    gl.glVertex3f(0.2f, 0.1f, 0.2f);
+                    gl.glVertex3f(2f, 1f, 2f);
 
 
                     gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
-                    gl.glVertex3f(0.2f, 0f, 0.2f);
+                    gl.glVertex3f(2f, 0f, 2f);
                     
                     
                     gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                    gl.glVertex3f(0.3f, 0f, 0.3f);
+                    gl.glVertex3f(3f, 0f, 3f);
                     
                     
                 gl.glEnd();                            
@@ -232,15 +232,15 @@ public class Renderer {
                 gl.glBegin(GL2.GL_TRIANGLES);               
                 
                     gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                    gl.glVertex3f(0.3f, 0.1f, 0.2f);
+                    gl.glVertex3f(3f, 1f, 2f);
                     
                     
                     gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                    gl.glVertex3f(0.2f, 0.1f, 0.2f);
+                    gl.glVertex3f(2f, 1f, 2f);
 
                     
                     gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                    gl.glVertex3f(0.3f, 0.1f, 0.3f);
+                    gl.glVertex3f(3f, 1f, 3f);
                     
                     
                 gl.glEnd();                            
@@ -254,19 +254,19 @@ public class Renderer {
                     gl.glBegin(GL2.GL_QUADS);               
                     
                         gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                        gl.glVertex3f(0.4f + 0.1f * x, 0.1f, 0.2f);
+                        gl.glVertex3f(4f + 1f * x, 1f, 2f);
                         
                         
                         gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                        gl.glVertex3f(0.3f + 0.1f * x, 0.1f, 0.2f);
+                        gl.glVertex3f(3f + 1f * x, 1f, 2f);
 
 
                         gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
-                        gl.glVertex3f(0.3f + 0.1f * x, 0.1f, 0.3f);
+                        gl.glVertex3f(3f + 1f * x, 1f, 3f);
                         
                         
                         gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                        gl.glVertex3f(0.4f + 0.1f * x, 0.1f, 0.3f);
+                        gl.glVertex3f(4f + 1f * x, 1f, 3f);
                         
                         
                     gl.glEnd();                            
@@ -279,19 +279,19 @@ public class Renderer {
                     gl.glBegin(GL2.GL_QUADS);               
                     
                         gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                        gl.glVertex3f(0.4f + 0.1f * x, 0.1f, 0.3f);
+                        gl.glVertex3f(4f + 1f * x, 1f, 3f);
                         
                         
                         gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                        gl.glVertex3f(0.3f + 0.1f * x, 0.1f, 0.3f);
+                        gl.glVertex3f(3f + 1f * x, 1f, 3f);
 
 
                         gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
-                        gl.glVertex3f(0.3f + 0.1f * x, 0f, 0.3f);
+                        gl.glVertex3f(3f + 1f * x, 0f, 3f);
                         
                         
                         gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                        gl.glVertex3f(0.4f + 0.1f * x, 0f, 0.3f);
+                        gl.glVertex3f(4f + 1f * x, 0f, 3f);
                         
                         
                     gl.glEnd();                            
@@ -336,15 +336,15 @@ public class Renderer {
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        0.1f,   (float)Player.getyPos() - 0.035f);
+            gl.glVertex3f((float)Player.getxPos(),        1f,   (float)Player.getyPos() - 0.35f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0.1f,   (float)Player.getyPos() - 0.035f); 
+            gl.glVertex3f((float)Player.getxPos() + 1f, 1f,   (float)Player.getyPos() - 0.35f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0f, (float)Player.getyPos());     
+            gl.glVertex3f((float)Player.getxPos() + 1f, 0f, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
@@ -375,15 +375,15 @@ public class Renderer {
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        0f,   (float)Player.getyPos() + 0.1f);
+            gl.glVertex3f((float)Player.getxPos(),        0f,   (float)Player.getyPos() + 1f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0f,   (float)Player.getyPos() + 0.1f); 
+            gl.glVertex3f((float)Player.getxPos() + 1f, 0f,   (float)Player.getyPos() + 1f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 0.1f, 0, (float)Player.getyPos());     
+            gl.glVertex3f((float)Player.getxPos() + 1f, 0, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
