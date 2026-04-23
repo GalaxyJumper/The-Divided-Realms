@@ -1,7 +1,7 @@
 import java.awt.event.KeyEvent;
 
 public class Player {
-    enum PlayerState {
+    public enum PlayerState {
         IDLE,
         DASHING,
         BLOCKING,
@@ -13,7 +13,7 @@ public class Player {
     private static int yDir = 0;
     private static double xVel = 0;
     private static double yVel = 0;
-    private static int lastDash = Integer.MIN_VALUE;
+    public static int lastDash = Integer.MIN_VALUE;
     private static PlayerState playerState = PlayerState.IDLE;
 
     public static void update(Input input){
@@ -73,9 +73,14 @@ public class Player {
 
         ///////// PLAYER STATES
         
-        if((int)System.currentTimeMillis() - lastDash < 500){
+        if((int)System.currentTimeMillis() - lastDash < 300){
             playerState = PlayerState.DASHING;
+        } else {
+            playerState = PlayerState.IDLE;
         }
+    }
+    public static PlayerState getState(){
+        return playerState;
     }
     
 
