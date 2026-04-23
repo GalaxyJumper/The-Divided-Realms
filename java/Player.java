@@ -14,6 +14,7 @@ public class Player {
     private static double xVel = 0;
     private static double yVel = 0;
     public static int lastDash = Integer.MIN_VALUE;
+
     private static PlayerState playerState = PlayerState.IDLE;
 
     public static void update(Input input){
@@ -43,26 +44,42 @@ public class Player {
 
         // Dashing logic & cooldown
         if(input.getKey(KeyEvent.VK_SHIFT) && (int) System.currentTimeMillis() - lastDash > 1000){
+            double xAdd = 0;
+            double yAdd = 0;
             if(input.getKey(KeyEvent.VK_W)){
-                yVel -= 0.03;
+                yAdd -= 0.02;
                 yDir = -1;
             }
             
             if(input.getKey(KeyEvent.VK_A)){
-                xVel -= 0.03;
+                xAdd -= 0.02;
                 xDir = -1;
             }
             
             if(input.getKey(KeyEvent.VK_S)){
-                yVel += 0.03;
+                yAdd += 0.02;
                 yDir = 1;
             }
             
             if(input.getKey(KeyEvent.VK_D)){
-                xVel += 0.03;
+                xAdd += 0.02;
                 xDir = 1;
             }
+
+            double magnitude = Math.sqrt(xAdd * xAdd + yAdd * yAdd);
+
+            if(magnitude != 0){
+                yAdd /= magnitude;
+                xAdd /= magnitude;
+            }
+            yAdd *= 0.04;
+            xAdd *= 0.04;
+
             lastDash = (int) System.currentTimeMillis();
+            xVel += xAdd;
+            yVel += yAdd;
+
+            Sounds.playSound("Roll");
         }
 
         xPos += xVel;
@@ -73,7 +90,7 @@ public class Player {
 
         ///////// PLAYER STATES
         
-        if((int)System.currentTimeMillis() - lastDash < 300){
+        if((int)System.currentTimeMillis() - lastDash < 400){
             playerState = PlayerState.DASHING;
         } else {
             playerState = PlayerState.IDLE;
@@ -101,6 +118,9 @@ public class Player {
     }
     public static double getyVel() {
         return yVel;
+    }
+    public static int getLastDash() {
+        return lastDash;
     }
     
     

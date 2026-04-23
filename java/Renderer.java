@@ -35,7 +35,15 @@ public class Renderer {
     static Texture bgTexture= null;
     static Texture[][] mapTextures = null; 
     static Texture[] playerIdle = null;
-    static Animation dashAnimation = new Animation(images.getImage("player1shortdash"), 2, 1, 2, 500, false);
+    static Animation[] dashAnimations = new Animation[]{
+        new Animation(images.getImage("playerQuickDash").getSubimage(0, 0, 96, 24), 4, 1, 4, 100, false),
+        
+        new Animation(images.getImage("playerQuickDash").getSubimage(0, 24, 96, 24), 4, 1, 4, 100, false),
+        
+        new Animation(images.getImage("playerQuickDash").getSubimage(0, 48, 96, 24), 4, 1, 4, 100, false),
+        
+        new Animation(images.getImage("playerQuickDash").getSubimage(0, 72, 96, 24), 4, 1, 4, 100, false)
+    };
 
     public static void init(){
         glcanvas.addGLEventListener( new GLEventListener() {
@@ -104,7 +112,7 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
         
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -189,6 +197,108 @@ public class Renderer {
             }
         }
 
+        gl.glLoadIdentity();
+
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
+        TextureCoords texcoords4 = images.getTexture("cliffgrass").getImageTexCoords();
+
+        gl.glTranslatef(-(float) Camera.getX(),-2f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 0.5f); 
+                gl.glRotatef(45f, 1.0f, 0f, 0f);
+
+                gl.glBegin(GL2.GL_QUADS);               
+                
+                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
+                    gl.glVertex3f(0.3f, 0.1f, 0.3f);
+                    
+                    
+                    gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
+                    gl.glVertex3f(0.2f, 0.1f, 0.2f);
+
+
+                    gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
+                    gl.glVertex3f(0.2f, 0f, 0.2f);
+                    
+                    
+                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
+                    gl.glVertex3f(0.3f, 0f, 0.3f);
+                    
+                    
+                gl.glEnd();                            
+                gl.glFlush();
+
+                gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("grass").getTextureObject());
+                texcoords4 = images.getTexture("grass").getImageTexCoords();
+
+                gl.glBegin(GL2.GL_TRIANGLES);               
+                
+                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
+                    gl.glVertex3f(0.3f, 0.1f, 0.2f);
+                    
+                    
+                    gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
+                    gl.glVertex3f(0.2f, 0.1f, 0.2f);
+
+                    
+                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
+                    gl.glVertex3f(0.3f, 0.1f, 0.3f);
+                    
+                    
+                gl.glEnd();                            
+                gl.glFlush();
+
+
+                for(float x = 0; x < 3; x++){
+                    gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("grass").getTextureObject());
+                    texcoords4 = images.getTexture("grass").getImageTexCoords();
+                    // TOP
+                    gl.glBegin(GL2.GL_QUADS);               
+                    
+                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
+                        gl.glVertex3f(0.4f + 0.1f * x, 0.1f, 0.2f);
+                        
+                        
+                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
+                        gl.glVertex3f(0.3f + 0.1f * x, 0.1f, 0.2f);
+
+
+                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
+                        gl.glVertex3f(0.3f + 0.1f * x, 0.1f, 0.3f);
+                        
+                        
+                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
+                        gl.glVertex3f(0.4f + 0.1f * x, 0.1f, 0.3f);
+                        
+                        
+                    gl.glEnd();                            
+                    gl.glFlush();
+
+                    gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
+                    texcoords4 = images.getTexture("cliffgrass").getImageTexCoords();
+
+                    // Side
+                    gl.glBegin(GL2.GL_QUADS);               
+                    
+                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
+                        gl.glVertex3f(0.4f + 0.1f * x, 0.1f, 0.3f);
+                        
+                        
+                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
+                        gl.glVertex3f(0.3f + 0.1f * x, 0.1f, 0.3f);
+
+
+                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
+                        gl.glVertex3f(0.3f + 0.1f * x, 0f, 0.3f);
+                        
+                        
+                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
+                        gl.glVertex3f(0.4f + 0.1f * x, 0f, 0.3f);
+                        
+                        
+                    gl.glEnd();                            
+                    gl.glFlush();
+                    
+                }
+
         int imageNumIDK = 0;
 
         
@@ -203,8 +313,9 @@ public class Renderer {
 
 
         if(Player.getState() == Player.PlayerState.DASHING){
-            dashAnimation.start();
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimation.getFrame(), false).getTextureObject());
+
+            dashAnimations[imageNumIDK].setStartTime(Player.getLastDash());
+            gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
         }
 
         if(Player.getState() == Player.PlayerState.ATTACKING){
@@ -310,7 +421,7 @@ public class Renderer {
         return result;
     }
     public static Texture getChunkTexture(String[][] chunk){
-        BufferedImage result = new BufferedImage(240, 240, BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = new BufferedImage(240, 240, BufferedImage.TYPE_INT_ARGB);
         Graphics graphics = result.createGraphics();
         for(int x = 0; x < 240; x += 24){
             for(int y = 0; y < 240; y += 24){

@@ -13,6 +13,8 @@ public class GameLoop {
                 running = true;
                 input = new Input();
                 Renderer.init();
+                new Sounds();
+                Sounds.playSound("Countryside");
                 while(running) {
                     now = System.nanoTime();
                                              // 1 second

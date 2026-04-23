@@ -1,0 +1,13 @@
+TODO LIST
+
+    - Cliffs
+        - Height logic and loading
+        - Rendering sides
+        - Procedural?
+    - Player sprites maybe
+        - 
+    - Particle System
+        - Images for this
+    - Larger map
+        - Mapmaker tool
+    

@@ -26,6 +26,9 @@ public class Animation {
     public void start(){
         startTime = (int)System.currentTimeMillis();
     }
+    public void setStartTime(int time){
+        startTime = time;
+    }
     public BufferedImage getFrameNum(int num){
         int x = (num % widthFrames) * frameWidth;
         int y = (num / widthFrames) * frameHeight;
@@ -40,6 +43,24 @@ public class Animation {
                 startTime = (int)System.currentTimeMillis();
                 step = 0;
             } else {
+                step = numFrames - 1;
+            }
+        }
+        // Determine which frame to draw
+        int x = (step % widthFrames) * frameWidth;
+        int y = (step / widthFrames) * frameHeight;
+        return sheet.getSubimage(x, y, frameWidth, frameHeight);
+    }
+        public BufferedImage getFrame(int customTime
+        ){
+        // Get current step
+        step = (int)(((int)System.currentTimeMillis() - customTime) / frameTime);
+        // Handle looping/animation end
+        if(step >= numFrames){
+            if(isLooping){
+                startTime = (int)System.currentTimeMillis();
+                step = 0;
+            } else { 
                 step = numFrames - 1;
             }
         }
