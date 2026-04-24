@@ -81,7 +81,6 @@ public class Map {
                 // Plonk the values into chunk.
                 for(int k = 0; k < 10; k++){ // For each tile in a row...
                     chunk[i][k] = row[k];
-                    System.out.println(chunk[i][k]);
                 }
                 
             }

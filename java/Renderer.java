@@ -20,8 +20,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 public class Renderer {
     
     static GLProfile glprofile = GLProfile.getDefault();
@@ -110,7 +108,7 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
         
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -125,6 +123,7 @@ public class Renderer {
         }
         catch(IOException e){
             e.printStackTrace();
+            System.out.println("sahgiuyasgfuyasegrkwa");
         }
 
     }
@@ -406,6 +405,14 @@ public class Renderer {
             
         gl.glEnd();                            
         gl.glFlush();
+    }
+
+    public static void renderPlayer(){
+
+    }
+
+    public static void renderEnvironment(){
+
     }
     
     public static void renderGame(){

@@ -79,7 +79,7 @@ public class Player {
             xVel += xAdd;
             yVel += yAdd;
 
-            Sounds.playSound("Roll");
+            //Sounds.playSound("Roll");
         }
 
         xPos += xVel;
