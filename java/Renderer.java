@@ -31,7 +31,7 @@ public class Renderer {
     static final Frame frame = new Frame( "Divided Realms Re-attempt" );
 
     static Texture bgTexture= null;
-    static Texture[][] mapTextures = null; 
+    static Texture[][][] mapTextures = null; 
     static Texture[] playerIdle = null;
     static Animation[] dashAnimations = new Animation[]{
         new Animation(images.getImage("playerQuickDash").getSubimage(0, 0, 96, 24), 4, 1, 4, 100, false),
@@ -113,10 +113,12 @@ public class Renderer {
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
             bgTexture = Renderer.getTextureFromFile(new File("img/Imagation.png"));
-            mapTextures = new Texture[Map.currentMap().getHeightChunks()][Map.currentMap().getWidthChunks()];
-            for(int i = 0; i < mapTextures.length; i++){
-                for(int k = 0; k < mapTextures[i].length; k++){
-                    mapTextures[i][k] = Renderer.getChunkTexture(Map.currentMap().getChunk(k, i).getData());
+            mapTextures = new Texture[Map.currentMap().getHeightChunks()][Map.currentMap().getWidthChunks()][3];
+            for(int y = 0; y < mapTextures.length; y++){
+                for(int x = 0; x < mapTextures[y].length; x++){
+                    for(int h = 0; h < Map.HEIGHT; h++){
+                        mapTextures[y][x][h] = Renderer.getChunkTextures(Map.currentMap().getChunk(x, y))[h];
+                    }
                 }   
             }
 
@@ -161,40 +163,40 @@ public class Renderer {
             
         gl.glEnd();                            
         gl.glFlush();
-        
-        for(int i = 0; i < Map.currentMap().getWidthChunks(); i ++){
-            for(int k = 0; k < Map.currentMap().getHeightChunks(); k++){
+        for(int y = 0; y < Map.currentMap().getHeightChunks(); y++){
+            for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
+                for(int h = 0; h < Map.HEIGHT; h ++){
+                    gl2.glBindTexture(GL2.GL_TEXTURE_2D, mapTextures[y][x][h].getTextureObject());
+                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+                    TextureCoords texcoords = mapTextures[y][x][h].getImageTexCoords();
 
-                gl2.glBindTexture(GL2.GL_TEXTURE_2D, mapTextures[k][i].getTextureObject());
-                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-                TextureCoords texcoords = mapTextures[k][i].getImageTexCoords();
+                    gl.glLoadIdentity();        
 
-                gl.glLoadIdentity();        
+                    gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
+                    gl.glRotatef(45f, 1.0f, 0f, 0f);
 
-                gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
-                gl.glRotatef(45f, 1.0f, 0f, 0f);
-
-                gl.glBegin(GL2.GL_QUADS);               
-                
-                    gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-                    gl.glVertex3f(10f + 10f*(float)i, 0f, 0.0f + 10f*(float)k);
+                    gl.glBegin(GL2.GL_QUADS);               
                     
-                    
-                    gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-                    gl.glVertex3f( 0.0f + 10f*(float)i, 0f, 0.0f + 10f*(float)k); 
+                        gl2.glTexCoord2f(texcoords.right(), texcoords.top());
+                        gl.glVertex3f(10f + 10f*(float)x, 0f - h, 0.0f + 10f*(float)y);
+                        
+                        
+                        gl2.glTexCoord2f(texcoords.left(), texcoords.top());
+                        gl.glVertex3f( 0.0f + 10f*(float)x, 0f - h, 0.0f + 10f*(float)y); 
 
 
-                    gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-                    gl.glVertex3f( 0.0f + 10f*(float)i, 0f, 10f + 10f*(float)k);     
-                    
-                    
-                    gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-                    gl.glVertex3f(10f + 10f*(float)i, 0f, 10f + 10f*(float)k);   
-                    
-                    
-                gl.glEnd();                            
-                gl.glFlush();
+                        gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
+                        gl.glVertex3f( 0.0f + 10f*(float)x, 0f - h, 10f + 10f*(float)y);     
+                        
+                        
+                        gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
+                        gl.glVertex3f(10f + 10f*(float)x, 0f - h, 10f + 10f*(float)y);   
+                        
+                        
+                    gl.glEnd();                            
+                    gl.glFlush();
+                }
             }
         }
 
@@ -441,14 +443,32 @@ public class Renderer {
         g.fillRect(0, 0, image.getWidth(), image.getHeight());
         return result;
     }
-    public static Texture getChunkTexture(String[][] chunk){
-        BufferedImage result = new BufferedImage(240, 240, BufferedImage.TYPE_INT_ARGB);
-        Graphics graphics = result.createGraphics();
+    public static Texture[] getChunkTextures(Chunk chunk){
+        BufferedImage[] result = new BufferedImage[3];
+        Graphics[] graphics = new Graphics[3];
+
+        for(int i = 0; i < 3; i++){
+            result[i] = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
+            graphics[i] = result[i].createGraphics();
+        }
+
         for(int x = 0; x < 240; x += 24){
             for(int y = 0; y < 240; y += 24){
-                graphics.drawImage((Image)images.getImage(chunk[y / 24][x / 24]), x, y, frame);
+                int mapHeight = chunk.getHeightAt(x / 24, y / 24);
+                Image tileImage = (Image)images.getImage(chunk.getTileAt(x / 24, y / 24));
+
+                graphics[mapHeight].drawImage(
+                    tileImage,
+                    x,
+                    y, 
+                    frame
+                );
             }
         }
-        return AWTTextureIO.newTexture(glprofile, result, false);
+        return new Texture[] {
+            AWTTextureIO.newTexture(glprofile, result[0], false),
+            AWTTextureIO.newTexture(glprofile, result[1], false),
+            AWTTextureIO.newTexture(glprofile, result[2], false)
+        };
     }
 }
