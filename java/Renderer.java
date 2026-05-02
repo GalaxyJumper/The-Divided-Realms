@@ -163,152 +163,10 @@ public class Renderer {
             
         gl.glEnd();                            
         gl.glFlush();
-        for(int y = 0; y < Map.currentMap().getHeightChunks(); y++){
-            for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
-                for(int h = 0; h < Map.HEIGHT; h ++){
-                    gl2.glBindTexture(GL2.GL_TEXTURE_2D, mapTextures[y][x][h].getTextureObject());
-                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-                    TextureCoords texcoords = mapTextures[y][x][h].getImageTexCoords();
-
-                    gl.glLoadIdentity();        
-
-                    gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
-                    gl.glRotatef(45f, 1.0f, 0f, 0f);
-
-                    gl.glBegin(GL2.GL_QUADS);               
-                    
-                        gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-                        gl.glVertex3f(10f + 10f*(float)x, 0f - h, 0.0f + 10f*(float)y);
-                        
-                        
-                        gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-                        gl.glVertex3f( 0.0f + 10f*(float)x, 0f - h, 0.0f + 10f*(float)y); 
-
-
-                        gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-                        gl.glVertex3f( 0.0f + 10f*(float)x, 0f - h, 10f + 10f*(float)y);     
-                        
-                        
-                        gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-                        gl.glVertex3f(10f + 10f*(float)x, 0f - h, 10f + 10f*(float)y);   
-                        
-                        
-                    gl.glEnd();                            
-                    gl.glFlush();
-                }
-            }
+        for(int h = 0; h < 3; h++){
+            renderGroundLayer(gl, h);
         }
 
-        gl.glLoadIdentity();
-
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-        TextureCoords texcoords4 = images.getTexture("cliffgrass").getImageTexCoords();
-
-        gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
-                gl.glRotatef(45f, 1.0f, 0f, 0f);
-
-                gl.glBegin(GL2.GL_QUADS);               
-                
-                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                    gl.glVertex3f(3f, 1f, 3f);
-                    
-                    
-                    gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                    gl.glVertex3f(2f, 1f, 2f);
-
-
-                    gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
-                    gl.glVertex3f(2f, 0f, 2f);
-                    
-                    
-                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                    gl.glVertex3f(3f, 0f, 3f);
-                    
-                    
-                gl.glEnd();                            
-                gl.glFlush();
-
-                gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("grass").getTextureObject());
-                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-                gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-                texcoords4 = images.getTexture("grass").getImageTexCoords();
-
-                gl.glBegin(GL2.GL_TRIANGLES);               
-                
-                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                    gl.glVertex3f(3f, 1f, 2f);
-                    
-                    
-                    gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                    gl.glVertex3f(2f, 1f, 2f);
-
-                    
-                    gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                    gl.glVertex3f(3f, 1f, 3f);
-                    
-                    
-                gl.glEnd();                            
-                gl.glFlush();
-
-
-                for(float x = 0; x < 3; x++){
-                    gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("grass").getTextureObject());
-                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-                    texcoords4 = images.getTexture("grass").getImageTexCoords();
-                    // TOP
-                    gl.glBegin(GL2.GL_QUADS);               
-                    
-                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                        gl.glVertex3f(4f + 1f * x, 1f, 2f);
-                        
-                        
-                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                        gl.glVertex3f(3f + 1f * x, 1f, 2f);
-
-
-                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
-                        gl.glVertex3f(3f + 1f * x, 1f, 3f);
-                        
-                        
-                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                        gl.glVertex3f(4f + 1f * x, 1f, 3f);
-                        
-                        
-                    gl.glEnd();                            
-                    gl.glFlush();
-
-                    gl2.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
-                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-                    gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-                    texcoords4 = images.getTexture("cliffgrass").getImageTexCoords();
-
-                    // Side
-                    gl.glBegin(GL2.GL_QUADS);               
-                    
-                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.top());
-                        gl.glVertex3f(4f + 1f * x, 1f, 3f);
-                        
-                        
-                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.top());
-                        gl.glVertex3f(3f + 1f * x, 1f, 3f);
-
-
-                        gl2.glTexCoord2f(texcoords4.left(), texcoords4.bottom());
-                        gl.glVertex3f(3f + 1f * x, 0f, 3f);
-                        
-                        
-                        gl2.glTexCoord2f(texcoords4.right(), texcoords4.bottom());
-                        gl.glVertex3f(4f + 1f * x, 0f, 3f);
-                        
-                        
-                    gl.glEnd();                            
-                    gl.glFlush();
-                    
-                }
 
         int imageNumIDK = 0;
 
@@ -414,7 +272,150 @@ public class Renderer {
     }
 
     public static void renderEnvironment(){
+        
+    }
+    public static void renderGroundLayer(GL2 gl, int layer){
+        for(int y = 0; y < Map.currentMap().getHeightChunks(); y++){
+            for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
 
+                
+            
+        
+                /////////// RENDER GROUND /////////
+
+                gl.glBindTexture(GL2.GL_TEXTURE_2D, mapTextures[y][x][layer].getTextureObject());
+                gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+                gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+                TextureCoords texcoords = mapTextures[y][x][layer].getImageTexCoords();
+
+                gl.glLoadIdentity();        
+
+                gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
+                gl.glRotatef(45f, 1.0f, 0f, 0f);
+
+                gl.glBegin(GL2.GL_QUADS);               
+                
+                    gl.glTexCoord2f(texcoords.right(), texcoords.top());
+                    gl.glVertex3f(10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y);
+                    
+                    
+                    gl.glTexCoord2f(texcoords.left(), texcoords.top());
+                    gl.glVertex3f( 0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y); 
+
+
+                    gl.glTexCoord2f(texcoords.left(), texcoords.bottom());
+                    gl.glVertex3f( 0.0f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y);     
+                    
+                    
+                    gl.glTexCoord2f(texcoords.right(), texcoords.bottom());
+                    gl.glVertex3f(10f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y);   
+                    
+                    
+                gl.glEnd();                            
+                gl.glFlush();
+                if(layer == 0){
+                Chunk currentChunk = Map.currentMap().getChunk(x, y);
+                // Render cliff sides
+                for(int y2 = 0; y2 < 10; y2++){
+                    for(int x2 = 0; x2 < 10; x2++){
+                        boolean noCliffs = false;
+                        String cliffData = currentChunk.getCliffAt(x2, y2);
+                        int startXoffset = 0;
+                        int startYoffset = 0;
+                        int endXoffset = 0;
+                        int endYoffset = 0;
+                        
+                        if(cliffData.equals("n")){
+                            startXoffset = 0;
+                            startYoffset = 0;
+                            endXoffset = 1;
+                            endYoffset = 0;
+                        }
+                        else if(cliffData.equals("e")){
+                            startXoffset = 1;
+                            startYoffset = 0;
+                            endXoffset = 1;
+                            endYoffset = 1;
+
+                        }
+                        else if(cliffData.equals("s")){
+                            startXoffset = 0;
+                            startYoffset = 1;
+                            endXoffset = 1;
+                            endYoffset = 1;
+
+                        }
+                        else if(cliffData.equals("w")){
+                            startXoffset = 0;
+                            startYoffset = 0;
+                            endXoffset = 0;
+                            endYoffset = 1;
+
+                        }
+
+                        else if(cliffData.equals("ne") || cliffData.equals("sw")){
+                            startXoffset = 0;
+                            startYoffset = 0;
+                            endXoffset = 1;
+                            endYoffset = 1;
+
+                        }
+                        else if(cliffData.equals("nw") || cliffData.equals("se")){
+                            startXoffset = 1;
+                            startYoffset = 0;
+                            endXoffset = 0;
+                            endYoffset = 1;
+
+                        } else {
+                            noCliffs = true;
+                        }
+                        if(!noCliffs){
+                            int xTiles = currentChunk.getXChunks() * 10 + x2;
+                            int yTiles = currentChunk.getXChunks() * 10 + y2;
+
+                            gl.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
+                            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+                            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+                            TextureCoords cliffTextureCoords = images.getTexture("cliffgrass").getImageTexCoords();
+
+                            gl.glLoadIdentity();        
+
+                            gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
+                            gl.glRotatef(45f, 1.0f, 0f, 0f);
+
+                            gl.glBegin(GL2.GL_QUADS);               
+                            
+                                gl.glTexCoord2f(cliffTextureCoords.right(), cliffTextureCoords.top());
+                                gl.glVertex3f(xTiles + endXoffset, 1f, yTiles + endYoffset);
+                                
+                                
+                                gl.glTexCoord2f(cliffTextureCoords.left(), cliffTextureCoords.top());
+                                gl.glVertex3f( xTiles + startXoffset, 1f, yTiles + startYoffset); 
+
+
+                                gl.glTexCoord2f(cliffTextureCoords.left(), cliffTextureCoords.bottom());
+                                gl.glVertex3f( xTiles + startXoffset, 0f, yTiles + startYoffset);     
+                                
+                                
+                                gl.glTexCoord2f(cliffTextureCoords.right(), cliffTextureCoords.bottom());
+                                gl.glVertex3f(xTiles + endXoffset, 0f, yTiles + endYoffset);   
+                                
+                                
+                            gl.glEnd();                            
+                            gl.glFlush();
+                        }
+                    }
+                }
+                }
+
+            }
+        }
+    }
+    public static void renderCliffs(GL2 gl){
+
+
+                
+                
     }
     
     public static void renderGame(){
@@ -448,7 +449,7 @@ public class Renderer {
         Graphics[] graphics = new Graphics[3];
 
         for(int i = 0; i < 3; i++){
-            result[i] = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
+            result[i] = new BufferedImage(240, 240, BufferedImage.TYPE_INT_ARGB);
             graphics[i] = result[i].createGraphics();
         }
 
@@ -456,12 +457,11 @@ public class Renderer {
             for(int y = 0; y < 240; y += 24){
                 int mapHeight = chunk.getHeightAt(x / 24, y / 24);
                 Image tileImage = (Image)images.getImage(chunk.getTileAt(x / 24, y / 24));
-
                 graphics[mapHeight].drawImage(
                     tileImage,
                     x,
                     y, 
-                    frame
+                    null
                 );
             }
         }
