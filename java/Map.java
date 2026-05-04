@@ -2,7 +2,7 @@ import java.io.File;
 import java.util.Scanner;
 
 public class Map {
-    public static final int HEIGHT = 3;
+    public static final int HEIGHT = 5;
 
 
 

@@ -47,6 +47,15 @@ public class Chunk {
         }
         return cliffDirData[y][x];
     }
+    public int getCliffHeightAt(int x, int y){
+        if(x >= 10 || x < 0){
+            x = 0;
+        }
+        if(y >= 10 || y < 0){
+            y = 0;
+        }
+        return cliffHeightData[y][x];
+    }
 
     public int[][] getHeightData(){
         return heightData;
