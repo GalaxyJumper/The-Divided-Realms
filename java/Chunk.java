@@ -1,13 +1,23 @@
+import javax.swing.event.SwingPropertyChangeSupport;
+
 public class Chunk {
     String[][] tileData;
-    String[][] cliffData;
-    int[][]    heightData;
+    String[][] cliffDirData;
+    int[][] cliffHeightData;
+    int[][] heightData;
     int x;
     int y;
     public Chunk(String[][] tileData, String[][] cliffData, int[][] heightData, int x, int y){
         this.tileData = tileData;
         this.heightData = heightData;
-        this.cliffData = cliffData;
+        this.cliffDirData = new String[cliffData.length][cliffData[0].length];
+        this.cliffHeightData = new int[cliffData.length][cliffData[0].length];
+        for(int i = 0; i < cliffData.length; i++){
+            for(int k = 0; k < cliffData[i].length; k++){
+                cliffDirData[i][k] = cliffData[i][k].split("\\.")[1];
+                cliffHeightData[i][k] = Integer.parseInt(cliffData[i][k].split("\\.")[0]);
+            }
+        }
         this.x = x;
         this.y = y;
     }
@@ -25,17 +35,17 @@ public class Chunk {
         return tileData[y][x];
     }
 
-    public String[][] getCliffData(){
-        return cliffData;
+    public String[][] getCliffDirData(){
+        return cliffDirData;
     }
-    public String getCliffAt(int x, int y){
+    public String getCliffDirAt(int x, int y){
         if(x >= 10 || x < 0){
             x = 0;
         }
         if(y >= 10 || y < 0){
             y = 0;
         }
-        return cliffData[y][x];
+        return cliffDirData[y][x];
     }
 
     public int[][] getHeightData(){
