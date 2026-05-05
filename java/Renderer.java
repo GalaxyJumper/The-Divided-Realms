@@ -326,20 +326,57 @@ public class Renderer {
 
                             }
 
-                            else if(cliffData.equals("ne") || cliffData.equals("sw")){
+                            else if(cliffData.equals("ne")){
                                 startXoffset = 0;
                                 startYoffset = 0;
                                 endXoffset = 1;
                                 endYoffset = 1;
+                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_BL"), 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}
+                                );
 
                             }
-                            else if(cliffData.equals("nw") || cliffData.equals("se")){
+                            else if( cliffData.equals("sw")){
+                                startXoffset = 0;
+                                startYoffset = 0;
+                                endXoffset = 1;
+                                endYoffset = 1;
+                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_TR"), 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}
+                                );                                
+                            }
+                            else if(cliffData.equals("nw")){
                                 startXoffset = 1;
                                 startYoffset = 0;
                                 endXoffset = 0;
                                 endYoffset = 1;
+                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_BR"), 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}
+                                );
 
-                            } else {
+                            } 
+                            else if(cliffData.equals("se")){
+                                startXoffset = 1;
+                                startYoffset = 0;
+                                endXoffset = 0;
+                                endYoffset = 1;
+                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_TL"), 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
+                                    new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
+                                    new float[] {1f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}
+                                );
+                            }
+                            else {
                                 noCliffs = true;
                             }
                             if(!noCliffs){
