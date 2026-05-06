@@ -36,6 +36,18 @@ public class Map {
         if(y > widthChunks * 10 || y < 0) return "";
         return mapData[y / 10][x / 10].getTileAt(x % 10, y % 10);
     } 
+        // Get tile at any location on the map
+    public int getHeight(int x, int y){
+        if(x > widthChunks * 10 || x < 0) return 0;
+        if(y > widthChunks * 10 || y < 0) return 0;
+        return mapData[y / 10][x / 10].getHeightAt(x % 10, y % 10);
+    } 
+        // Get tile at any location on the map
+    public int getCliffHeight(int x, int y){
+        if(x > widthChunks * 10 || x < 0) return 0;
+        if(y > widthChunks * 10 || y < 0) return 0;
+        return mapData[y / 10][x / 10].getCliffHeightAt(x % 10, y % 10);
+    } 
     
 
     public Chunk getChunk(int xChunks, int yChunks){

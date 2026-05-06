@@ -197,29 +197,25 @@ public class Renderer {
         }
 
         // Render player
-        // TODO: Meshing logic: Get the texture of a chunk and draw that instead
-        // For cliffs: each tile is 1 wide by like 3 tall and is an image of the cliff
-        // Get the chunk images on world load.
-        // For animations: do a check (isAnimated) and create a texture for each frame of the animation.
-
         TextureCoords texcoords = playerIdle[imageNumIDK].getImageTexCoords();
-
+        int mapheight = Map.currentMap().getHeight((int)(Player.getxPos() + 0.5), (int)(Player.getyPos() + 0.5)) + 
+                        Map.currentMap().getCliffHeight((int)(Player.getxPos() + 0.5), (int)(Player.getyPos() + 0.5));
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        1f,   (float)Player.getyPos() - 0.38f);
+            gl.glVertex3f((float)Player.getxPos(),        1f + mapheight,   (float)Player.getyPos() - 0.38f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 1f,   (float)Player.getyPos() - 0.38f); 
+            gl.glVertex3f((float)Player.getxPos() + 1f, 1f + mapheight,   (float)Player.getyPos() - 0.38f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 0f, (float)Player.getyPos());     
+            gl.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos(),        0f, (float)Player.getyPos());   
+            gl.glVertex3f((float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos());   
             
             
         gl.glEnd();                            
@@ -248,19 +244,19 @@ public class Renderer {
         gl.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        0f,   (float)Player.getyPos() + 1f);
+            gl.glVertex3f((float)Player.getxPos(),        0f + mapheight,   (float)Player.getyPos() + 1f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 0f,   (float)Player.getyPos() + 1f); 
+            gl.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight,   (float)Player.getyPos() + 1f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 0, (float)Player.getyPos());     
+            gl.glVertex3f((float)Player.getxPos() + 1f, 0 + mapheight, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos(),        0, (float)Player.getyPos());   
+            gl.glVertex3f((float)Player.getxPos(),        0 + mapheight, (float)Player.getyPos());   
             
             
         gl.glEnd();                            
@@ -383,7 +379,7 @@ public class Renderer {
                                 int xTiles = currentChunk.getXChunks() * 10 + x2;
                                 int yTiles = currentChunk.getXChunks() * 10 + y2;
                                     TextureCoords cliffTextureCoords;
-                                    if (layer != currentChunk.getCliffHeightAt(x2, y2) - 1){
+                                    if (layer != currentChunk.getCliffHeightAt(x2, y2) + currentChunk.getHeightAt(x2, y2) - 1){
                                         gl.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffside").getTextureObject());
                                         cliffTextureCoords = images.getTexture("cliffside").getImageTexCoords();
                                     } else {                                    
@@ -497,7 +493,7 @@ public class Renderer {
         Graphics[] graphics = new Graphics[Map.HEIGHT];
 
         for(int i = 0; i < Map.HEIGHT; i++){
-            result[i] = new BufferedImage(240, 240, BufferedImage.TYPE_INT_ARGB);
+            result[i] = new BufferedImage(240, 240, BufferedImage.BITMASK);
             graphics[i] = result[i].createGraphics();
         }
 
