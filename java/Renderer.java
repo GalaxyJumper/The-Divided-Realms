@@ -417,6 +417,15 @@ public class Renderer {
                                         
                                     gl.glEnd();                            
                                     gl.glFlush();
+                                    Renderer.texturedQuad(
+                                        gl, 
+                                        AWTTextureIO.newTexture(glprofile, toGlassLess(images.getImage("grass")), false), 
+                                        new float[] {xTiles + endXoffset, layer + 1f, yTiles + endYoffset}, 
+                                        new float[] { xTiles + startXoffset, layer + 1f, yTiles + startYoffset}, 
+                                        new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
+                                        new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
+                                    );
+
                                     if(layer == currentChunk.getHeightAt(x2, y2)){
                                         Renderer.texturedQuad(
                                             gl, 
@@ -435,6 +444,15 @@ public class Renderer {
                                             new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
                                             new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
                                         );
+
+                                    Renderer.texturedQuad(
+                                        gl, 
+                                        AWTTextureIO.newTexture(glprofile, toGlassLess(images.getImage("grass")), false), 
+                                        new float[] {xTiles + endXoffset + 0.2f, layer, yTiles + endYoffset + 1f}, 
+                                        new float[] { xTiles + startXoffset + 0.2f, layer, yTiles + startYoffset + 1f}, 
+                                        new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
+                                        new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
+                                    );
                                     }
                                 
 
@@ -505,6 +523,26 @@ public class Renderer {
         // Set the composite rule to only affect non-transparent pixels
         /* @see https://ssp.impulsetrain.com/porterduff.html */
         g.setComposite(AlphaComposite.SrcIn.derive(0.3f));
+
+        // Set the desired color and fill the entire image
+        g.setColor(color);
+        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        return result;
+    }
+    public static BufferedImage toGlassLess(BufferedImage image){
+        
+        // Color of the final shadow (usually black)
+        Color color = new Color(0, 0, 0);
+        // Result image
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), Transparency.BITMASK);
+
+        // Copy the alpha channel from the original image
+        Graphics2D g = result.createGraphics();
+        g.drawImage(image, 0, 0, null);
+
+        // Set the composite rule to only affect non-transparent pixels
+        /* @see https://ssp.impulsetrain.com/porterduff.html */
+        g.setComposite(AlphaComposite.SrcIn.derive(0.2f));
 
         // Set the desired color and fill the entire image
         g.setColor(color);
