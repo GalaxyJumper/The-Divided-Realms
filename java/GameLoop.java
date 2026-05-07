@@ -2,7 +2,7 @@ public class GameLoop {
     private static boolean running = false;
     private static int framesLastSecond = 0;
     public static int framesThisSecond = 0;
-    private static long lastSecondTime = System.currentTimeMillis();
+    private static long lastSecondTime = System.nanoTime();
     private static long now;
     public static Input input;
     public static void start () {

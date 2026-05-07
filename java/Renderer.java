@@ -108,7 +108,7 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
         
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -125,7 +125,6 @@ public class Renderer {
         }
         catch(IOException e){
             e.printStackTrace();
-            System.out.println("sahgiuyasgfuyasegrkwa");
         }
 
     }
@@ -182,19 +181,20 @@ public class Renderer {
 
 
         if(Player.getState() == Player.PlayerState.DASHING){
-
+            System.out.println("[Renderer] Dashing!");
             dashAnimations[imageNumIDK].setStartTime(Player.getLastDash());
             gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
         }
         
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
         if(Player.getState() == Player.PlayerState.ATTACKING){
 
         }
         if(Player.getState() == Player.PlayerState.BLOCKING){
             
         }
+        
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
         // Render player
         TextureCoords texcoords = playerIdle[imageNumIDK].getImageTexCoords();
@@ -327,6 +327,7 @@ public class Renderer {
                                 startYoffset = 0;
                                 endXoffset = 1;
                                 endYoffset = 1;
+                                if(layer == currentChunk.getHeightAt(x2, y2))
                                 Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_BL"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
@@ -340,6 +341,7 @@ public class Renderer {
                                 startYoffset = 0;
                                 endXoffset = 1;
                                 endYoffset = 1;
+                                if(layer == currentChunk.getHeightAt(x2, y2))
                                 Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_TR"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
@@ -352,6 +354,7 @@ public class Renderer {
                                 startYoffset = 0;
                                 endXoffset = 0;
                                 endYoffset = 1;
+                                if(layer == currentChunk.getHeightAt(x2, y2))
                                 Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_BR"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
@@ -365,6 +368,7 @@ public class Renderer {
                                 startYoffset = 0;
                                 endXoffset = 0;
                                 endYoffset = 1;
+                                if(layer == currentChunk.getHeightAt(x2, y2))
                                 Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_TL"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
@@ -413,6 +417,25 @@ public class Renderer {
                                         
                                     gl.glEnd();                            
                                     gl.glFlush();
+                                    if(layer == currentChunk.getHeightAt(x2, y2)){
+                                        Renderer.texturedQuad(
+                                            gl, 
+                                            images.getTexture("cliffshadow (2)"), 
+                                            new float[] {xTiles + endXoffset, layer + 1.2f, yTiles + endYoffset}, 
+                                            new float[] { xTiles + startXoffset, layer + 1.2f, yTiles + startYoffset}, 
+                                            new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
+                                            new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
+                                        );
+                                        
+                                        Renderer.texturedQuad(
+                                            gl, 
+                                            images.getTexture("cliffshadow (2)"), 
+                                            new float[] {xTiles + endXoffset, layer, yTiles + endYoffset + 1f}, 
+                                            new float[] { xTiles + startXoffset, layer, yTiles + startYoffset + 1f}, 
+                                            new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
+                                            new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
+                                        );
+                                    }
                                 
 
                             }

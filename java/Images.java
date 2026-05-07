@@ -34,7 +34,7 @@ public class Images {
     private void recursiveImageLoad(String folderPath){
         // New file from the path
         File folder = new File(folderPath);
-        System.out.println(folderPath);
+        //System.out.println(folderPath);
         // If folder is actually a folder (not an image)...
         if(!folder.toString().endsWith(".png")){
             // Get the contents of the folder

@@ -13,7 +13,7 @@ public class Player {
     private static int yDir = 0;
     private static double xVel = 0;
     private static double yVel = 0;
-    public static int lastDash = Integer.MIN_VALUE;
+    public static int lastDash = (int)System.currentTimeMillis() - 420;
 
     private static PlayerState playerState = PlayerState.IDLE;
 
@@ -44,6 +44,7 @@ public class Player {
 
         // Dashing logic & cooldown
         if(input.getKey(KeyEvent.VK_SHIFT) && (int) System.currentTimeMillis() - lastDash > 1000){
+            System.out.println(input.getKey(KeyEvent.VK_SHIFT) + "------------------------------------------");
             double xAdd = 0;
             double yAdd = 0;
             if(input.getKey(KeyEvent.VK_W)){
@@ -92,6 +93,9 @@ public class Player {
         
         if((int)System.currentTimeMillis() - lastDash < 400){
             playerState = PlayerState.DASHING;
+            System.out.println((int)System.currentTimeMillis());
+            
+            System.out.println(lastDash);
         } else {
             playerState = PlayerState.IDLE;
         }
