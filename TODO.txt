@@ -1,13 +1,22 @@
 TODO LIST
 
     - Cliffs
-        - Height logic and loading
-        - Rendering sides
-        - Procedural?
-    - Player sprites maybe
+        - Height logic and loading (done)
+        - Rendering sides (done)
+        - Procedural? (maybe)
+    - Player
+        - Quick dash (done)
+        - Attacking and blocking animations
+        - Hitbox/collisions
+    
+    - Enemies
+        - Basic enemy class (pos, health, update)
+        - Rendering: basic renderEnemy(Enemy enemy) and then also renderEnemy(Slime enemy)
         - 
+
     - Particle System
         - Images for this
     - Larger map
+        - Optimize by only rendering a single image for each chunk (done)
         - Mapmaker tool
-    - Method for drawing quads oh my god
+    - Method for drawing quads (done)

@@ -1,8 +1,8 @@
 import java.awt.image.BufferedImage;
 public class Animation {
     private int startTime; // Animation start time
-    private int widthFrames; // How many frames horizontally the sheet is wide
-    private int heightFrames; // How many frames vertically the sheet is tall
+    private int widthFrames; // How many frames the sheet is wide
+    private int heightFrames; // How many frames the sheet is tall
     private int frameWidth; // How wide each frame is
     private int frameHeight;// Take a wild guess
     private int numFrames; // How many frames in the animation

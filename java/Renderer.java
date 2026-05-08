@@ -20,11 +20,15 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.classfile.attribute.EnclosingMethodAttribute;
 public class Renderer {
     
     static GLProfile glprofile = GLProfile.getDefault();
 
     static Images images = new Images("img");
+
+    static Slime[] boi = new Slime[20];
+
 
     static GLCapabilities glcapabilities = new GLCapabilities( glprofile );
     static final GLCanvas glcanvas = new GLCanvas( glcapabilities );
@@ -44,6 +48,11 @@ public class Renderer {
     };
 
     public static void init(){
+
+        for(int i = 0; i < boi.length; i++){
+            boi[i] = new Slime(7 + Math.random() * 4, 7 + Math.random() *4);
+        }
+
         glcanvas.addGLEventListener( new GLEventListener() {
             
             @Override
@@ -261,6 +270,10 @@ public class Renderer {
             
         gl.glEnd();                            
         gl.glFlush();
+        for(int i = 0; i < boi.length; i++){
+            Renderer.renderEnemy(boi[i], gl);
+            boi[i].update();
+        }
     }
 
     public static void renderPlayer(){
@@ -463,6 +476,22 @@ public class Renderer {
 
             }
         }
+    }
+    public static void renderEnemy(Enemy e, GL2 gl){
+        Renderer.texturedQuad(
+            gl, Images.readSpriteSheet(images.getImage(e.getClass().getCanonicalName().toLowerCase()), glprofile, 2, 4)[Math.abs((int)System.currentTimeMillis() + e.getClass().hashCode()) / 150 % 7], 
+            new float[] {(float)e.getxPos(),        1f,   (float)e.getyPos() - 0.38f}, 
+            new float[] {(float)e.getxPos() + 1f, 1f,   (float)e.getyPos() - 0.38f},
+            new float[] {(float)e.getxPos() + 1f, 0f, (float)e.getyPos()},
+            new float[] {(float)e.getxPos(),        0f, (float)e.getyPos()}
+        );
+        Renderer.texturedQuad(
+            gl, AWTTextureIO.newTexture(glprofile, Renderer.toGlass(Images.readSpriteSheetToBufferedImage(images.getImage(e.getClass().getCanonicalName().toLowerCase()), glprofile, 2, 4)[Math.abs((int)System.currentTimeMillis()) / 150 % 7]), false),
+            new float[] {(float)e.getxPos() + 1f,        0f,   (float)e.getyPos() + 1f}, 
+            new float[] {(float)e.getxPos(), 0f,   (float)e.getyPos() + 1f},
+            new float[] {(float)e.getxPos(), 0f, (float)e.getyPos()},
+            new float[] {(float)e.getxPos() + 1f,        0f, (float)e.getyPos()}
+        );
     }
     public static void renderCliffs(GL2 gl){
 
