@@ -1,7 +1,16 @@
+import java.awt.image.BufferedImage;
+
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.util.texture.Texture;
+import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+
 public class Slime extends Enemy{
     private double[] pathfindingTarget = new double[2];
     private int lastTargetUpdate = (int) System.currentTimeMillis() - 5000;
     private int timeTilNextTargetUpdate = 4500;
+    private BufferedImage[] spritesheet = Images.readSpriteSheetToBufferedImage(images.getImage("slime"), GLProfile.getDefault(), 2, 4);
     public Slime(double x, double y){
         super(x, y);
     }
@@ -27,5 +36,21 @@ public class Slime extends Enemy{
             pathfindingTarget[1] = Player.getyPos();
         }
 
+    }
+    public void draw(GL2 gl){
+        Renderer.texturedQuad(
+            gl, spritesheet[Math.abs((int)System.currentTimeMillis() + this.getClass().hashCode()) / 150 % 7], 
+            new float[] {(float)xPos,        1f,   (float)yPos - 0.38f}, 
+            new float[] {(float)xPos + 1f, 1f,   (float)yPos - 0.38f},
+            new float[] {(float)xPos + 1f, 0f, (float)yPos},
+            new float[] {(float)xPos,        0f, (float)yPos}
+        );
+        Renderer.texturedQuad(
+            gl, AWTTextureIO.newTexture(Renderer.getGLProfile(), Renderer.toGlass(spritesheet[Math.abs((int)System.currentTimeMillis()) / 150 % 7]), false),
+            new float[] {(float)xPos + 1f,        0f,   (float)yPos + 1f}, 
+            new float[] {(float)xPos, 0f,   (float)yPos + 1f},
+            new float[] {(float)xPos, 0f, (float)yPos},
+            new float[] {(float)xPos + 1f,        0f, (float)yPos}
+        );
     }
 }

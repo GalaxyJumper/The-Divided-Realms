@@ -8,6 +8,8 @@ abstract class Enemy {
 
     protected double health;
 
+    protected Images images = new Images("img/enemies");
+
     public Enemy(double x, double y){
         xPos = x;
         yPos = y;

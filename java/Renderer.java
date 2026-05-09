@@ -48,11 +48,6 @@ public class Renderer {
     };
 
     public static void init(){
-
-        for(int i = 0; i < boi.length; i++){
-            boi[i] = new Slime(7 + Math.random() * 4, 7 + Math.random() *4);
-        }
-
         glcanvas.addGLEventListener( new GLEventListener() {
             
             @Override
@@ -117,7 +112,7 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
         
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -135,6 +130,12 @@ public class Renderer {
         catch(IOException e){
             e.printStackTrace();
         }
+
+
+        for(int i = 0; i < boi.length; i++){
+            boi[i] = new Slime(7 + Math.random() * 4, 7 + Math.random() *4);
+        }
+
 
     }
 
@@ -271,7 +272,7 @@ public class Renderer {
         gl.glEnd();                            
         gl.glFlush();
         for(int i = 0; i < boi.length; i++){
-            Renderer.renderEnemy(boi[i], gl);
+            boi[i].draw(gl);
             boi[i].update();
         }
     }
@@ -395,44 +396,22 @@ public class Renderer {
                             if(!noCliffs){
                                 int xTiles = currentChunk.getXChunks() * 10 + x2;
                                 int yTiles = currentChunk.getXChunks() * 10 + y2;
+                                    Texture cliffTexture;
                                     TextureCoords cliffTextureCoords;
+                                    // If this isn't the top layer, so it doesn't need grass
                                     if (layer != currentChunk.getCliffHeightAt(x2, y2) + currentChunk.getHeightAt(x2, y2) - 1){
-                                        gl.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffside").getTextureObject());
-                                        cliffTextureCoords = images.getTexture("cliffside").getImageTexCoords();
-                                    } else {                                    
-                                        gl.glBindTexture(GL2.GL_TEXTURE_2D, images.getTexture("cliffgrass").getTextureObject());
-                                        cliffTextureCoords = images.getTexture("cliffgrass").getImageTexCoords();
+                                        cliffTexture = images.getTexture("cliffside_dark");
+                                        cliffTextureCoords = cliffTexture.getImageTexCoords();
+                                    } 
+                                    // If this is the top layer so it needs grass
+                                    else {                                    
+                                        cliffTexture = images.getTexture("cliffgrass_dark");
+                                        cliffTextureCoords = cliffTexture.getImageTexCoords();
                                     }
-                                    gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-                                    gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-
-                                    gl.glLoadIdentity();        
-
-                                    gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
-                                    gl.glRotatef(45f, 1.0f, 0f, 0f);
-                                    gl.glBegin(GL2.GL_QUADS);               
                                     
-                                        gl.glTexCoord2f(cliffTextureCoords.right(), cliffTextureCoords.top());
-                                        gl.glVertex3f(xTiles + endXoffset, layer + 1f, yTiles + endYoffset);
-                                        
-                                        
-                                        gl.glTexCoord2f(cliffTextureCoords.left(), cliffTextureCoords.top());
-                                        gl.glVertex3f( xTiles + startXoffset, layer + 1f, yTiles + startYoffset); 
-
-
-                                        gl.glTexCoord2f(cliffTextureCoords.left(), cliffTextureCoords.bottom());
-                                        gl.glVertex3f( xTiles + startXoffset, layer, yTiles + startYoffset);     
-                                        
-                                        
-                                        gl.glTexCoord2f(cliffTextureCoords.right(), cliffTextureCoords.bottom());
-                                        gl.glVertex3f(xTiles + endXoffset, layer, yTiles + endYoffset);   
-                                        
-                                        
-                                    gl.glEnd();                            
-                                    gl.glFlush();
                                     Renderer.texturedQuad(
                                         gl, 
-                                        AWTTextureIO.newTexture(glprofile, toGlassLess(images.getImage("grass")), false), 
+                                        cliffTexture, 
                                         new float[] {xTiles + endXoffset, layer + 1f, yTiles + endYoffset}, 
                                         new float[] { xTiles + startXoffset, layer + 1f, yTiles + startYoffset}, 
                                         new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
@@ -478,20 +457,7 @@ public class Renderer {
         }
     }
     public static void renderEnemy(Enemy e, GL2 gl){
-        Renderer.texturedQuad(
-            gl, Images.readSpriteSheet(images.getImage(e.getClass().getCanonicalName().toLowerCase()), glprofile, 2, 4)[Math.abs((int)System.currentTimeMillis() + e.getClass().hashCode()) / 150 % 7], 
-            new float[] {(float)e.getxPos(),        1f,   (float)e.getyPos() - 0.38f}, 
-            new float[] {(float)e.getxPos() + 1f, 1f,   (float)e.getyPos() - 0.38f},
-            new float[] {(float)e.getxPos() + 1f, 0f, (float)e.getyPos()},
-            new float[] {(float)e.getxPos(),        0f, (float)e.getyPos()}
-        );
-        Renderer.texturedQuad(
-            gl, AWTTextureIO.newTexture(glprofile, Renderer.toGlass(Images.readSpriteSheetToBufferedImage(images.getImage(e.getClass().getCanonicalName().toLowerCase()), glprofile, 2, 4)[Math.abs((int)System.currentTimeMillis()) / 150 % 7]), false),
-            new float[] {(float)e.getxPos() + 1f,        0f,   (float)e.getyPos() + 1f}, 
-            new float[] {(float)e.getxPos(), 0f,   (float)e.getyPos() + 1f},
-            new float[] {(float)e.getxPos(), 0f, (float)e.getyPos()},
-            new float[] {(float)e.getxPos() + 1f,        0f, (float)e.getyPos()}
-        );
+
     }
     public static void renderCliffs(GL2 gl){
 
@@ -604,5 +570,8 @@ public class Renderer {
             textures[i] = AWTTextureIO.newTexture(glprofile, result[i], false);
         }
         return textures;
+    }
+    public static GLProfile getGLProfile(){
+        return glprofile;
     }
 }
