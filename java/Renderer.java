@@ -20,7 +20,6 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.classfile.attribute.EnclosingMethodAttribute;
 public class Renderer {
     
     static GLProfile glprofile = GLProfile.getDefault();
@@ -141,9 +140,7 @@ public class Renderer {
 
     protected static void render( GL2 gl2, int width, int height ) {
         frame.requestFocusInWindow();
-        final GL2 gl = gl2;
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-	    gl.glLoadIdentity();                
+	    gl2.glLoadIdentity();                
         
         
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
@@ -152,28 +149,28 @@ public class Renderer {
 
         TextureCoords texcoords2 = bgTexture.getImageTexCoords();
 
-        gl.glBegin(GL2.GL_QUADS);               
+        gl2.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
-            gl.glVertex3f(20f, 11.25f, -30f);
+            gl2.glVertex3f(20f, 11.25f, -30f);
             
             
             gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
-            gl.glVertex3f(-20f, 11.25f, -30f); 
+            gl2.glVertex3f(-20f, 11.25f, -30f); 
 
 
             gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
-            gl.glVertex3f(-20f, -11.25f, -30f);     
+            gl2.glVertex3f(-20f, -11.25f, -30f);     
             
             
             gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
-            gl.glVertex3f(20f, -11.25f, -30f);   
+            gl2.glVertex3f(20f, -11.25f, -30f);   
             
             
-        gl.glEnd();                            
-        gl.glFlush();
+        gl2.glEnd();                            
+        gl2.glFlush();
         for(int h = 0; h < Map.HEIGHT; h++){
-            renderGroundLayer(gl, h);
+            renderGroundLayer(gl2, h);
         }
 
 
@@ -210,26 +207,26 @@ public class Renderer {
         TextureCoords texcoords = playerIdle[imageNumIDK].getImageTexCoords();
         int mapheight = Map.currentMap().getHeight((int)(Player.getxPos() + 0.5), (int)(Player.getyPos() + 0.5)) + 
                         Map.currentMap().getCliffHeight((int)(Player.getxPos() + 0.5), (int)(Player.getyPos() + 0.5));
-        gl.glBegin(GL2.GL_QUADS);               
+        gl2.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        1f + mapheight,   (float)Player.getyPos() - 0.38f);
+            gl2.glVertex3f((float)Player.getxPos(),        1f + mapheight,   (float)Player.getyPos() - 0.38f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 1f + mapheight,   (float)Player.getyPos() - 0.38f); 
+            gl2.glVertex3f((float)Player.getxPos() + 1f, 1f + mapheight,   (float)Player.getyPos() - 0.38f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight, (float)Player.getyPos());     
+            gl2.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos());   
+            gl2.glVertex3f((float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos());   
             
             
-        gl.glEnd();                            
-        gl.glFlush();
+        gl2.glEnd();                            
+        gl2.glFlush();
 
 
         gl2.glBindTexture(
@@ -251,28 +248,28 @@ public class Renderer {
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
         // Render player
-        gl.glBegin(GL2.GL_QUADS);               
+        gl2.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos(),        0f + mapheight,   (float)Player.getyPos() + 1f);
+            gl2.glVertex3f((float)Player.getxPos(),        0f + mapheight,   (float)Player.getyPos() + 1f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight,   (float)Player.getyPos() + 1f); 
+            gl2.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight,   (float)Player.getyPos() + 1f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos() + 1f, 0 + mapheight, (float)Player.getyPos());     
+            gl2.glVertex3f((float)Player.getxPos() + 1f, 0 + mapheight, (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f((float)Player.getxPos(),        0 + mapheight, (float)Player.getyPos());   
+            gl2.glVertex3f((float)Player.getxPos(),        0 + mapheight, (float)Player.getyPos());   
             
             
-        gl.glEnd();                            
-        gl.glFlush();
+        gl2.glEnd();                            
+        gl2.glFlush();
         for(int i = 0; i < boi.length; i++){
-            boi[i].draw(gl);
+            boi[i].draw(gl2);
             boi[i].update();
         }
     }
@@ -289,7 +286,7 @@ public class Renderer {
             for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
         
                 /////////// RENDER GROUND /////////
-
+                if(mapTextures[y][x][layer] != null)
                 Renderer.texturedQuad(gl, mapTextures[y][x][layer], 
                     new float[] {10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y}, 
                     new float[] {0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y},
@@ -524,6 +521,26 @@ public class Renderer {
         g.fillRect(0, 0, image.getWidth(), image.getHeight());
         return result;
     }
+    public static Texture toGlassTexture(BufferedImage image){
+        
+        // Color of the final shadow (usually black)
+        Color color = new Color(0, 0, 0);
+        // Result image
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), Transparency.BITMASK);
+
+        // Copy the alpha channel from the original image
+        Graphics2D g = result.createGraphics();
+        g.drawImage(image, 0, 0, null);
+
+        // Set the composite rule to only affect non-transparent pixels
+        /* @see https://ssp.impulsetrain.com/porterduff.html */
+        g.setComposite(AlphaComposite.SrcIn.derive(0.3f));
+
+        // Set the desired color and fill the entire image
+        g.setColor(color);
+        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        return AWTTextureIO.newTexture(glprofile, result, false);
+    }
     public static BufferedImage toGlassLess(BufferedImage image){
         
         // Color of the final shadow (usually black)
@@ -547,6 +564,8 @@ public class Renderer {
     public static Texture[] getChunkTextures(Chunk chunk){
         BufferedImage[] result = new BufferedImage[Map.HEIGHT];
         Graphics[] graphics = new Graphics[Map.HEIGHT];
+        boolean[] isLayerEmpty = new boolean[Map.HEIGHT];
+        for(int i = 0; i < isLayerEmpty.length; i++) isLayerEmpty[i] = true;
 
         for(int i = 0; i < Map.HEIGHT; i++){
             result[i] = new BufferedImage(240, 240, BufferedImage.BITMASK);
@@ -563,11 +582,13 @@ public class Renderer {
                     y, 
                     null
                 );
+                isLayerEmpty[mapHeight] = false;
             }
         }
         Texture[] textures = new Texture[graphics.length];
         for(int i = 0 ; i < result.length; i++){
             textures[i] = AWTTextureIO.newTexture(glprofile, result[i], false);
+            if(isLayerEmpty[i]) textures[i] = null;
         }
         return textures;
     }
