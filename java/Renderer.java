@@ -30,7 +30,7 @@ public class Renderer {
 
     static Images images = new Images("img");
 
-    static Slime[] boi = new Slime[20];
+    static Slime[] boi = new Slime[10];
 
 
     static GLCapabilities glcapabilities = new GLCapabilities( glprofile );
