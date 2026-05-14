@@ -1,3 +1,4 @@
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -20,6 +21,9 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 public class Renderer {
     
     static GLProfile glprofile = GLProfile.getDefault();
@@ -36,6 +40,7 @@ public class Renderer {
     static Texture bgTexture= null;
     static Texture[][][] mapTextures = null; 
     static Texture[] playerIdle = null;
+    static Texture shadowSquare = null;
     static Animation[] dashAnimations = new Animation[]{
         new Animation(images.getImage("playerQuickDash").getSubimage(0, 0, 96, 24), 4, 1, 4, 100, false),
         
@@ -112,11 +117,12 @@ public class Renderer {
 		gl2.glLoadIdentity();
 
         gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
-        
+        shadowSquare = AWTTextureIO.newTexture(glprofile, toGlass(images.getImage("grass")), false);
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
             bgTexture = Renderer.getTextureFromFile(new File("img/Imagation.png"));
             mapTextures = new Texture[Map.currentMap().getHeightChunks()][Map.currentMap().getWidthChunks()][Map.HEIGHT];
+            
             for(int y = 0; y < mapTextures.length; y++){
                 for(int x = 0; x < mapTextures[y].length; x++){
                     for(int h = 0; h < Map.HEIGHT; h++){
@@ -286,13 +292,14 @@ public class Renderer {
             for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
         
                 /////////// RENDER GROUND /////////
-                if(mapTextures[y][x][layer] != null)
+                if(mapTextures[y][x][layer] != null){
                 Renderer.texturedQuad(gl, mapTextures[y][x][layer], 
                     new float[] {10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y}, 
                     new float[] {0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y},
                     new float[] {0.0f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}, 
                     new float[] {10f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}
                 );
+                } 
                 Chunk currentChunk = Map.currentMap().getChunk(x, y);
                 // Render cliff sides
                 for(int y2 = 0; y2 < 10; y2++){
@@ -395,12 +402,12 @@ public class Renderer {
                                 int yTiles = currentChunk.getXChunks() * 10 + y2;
                                     Texture cliffTexture;
                                     TextureCoords cliffTextureCoords;
-                                    // If this isn't the top layer, so it doesn't need grass
+                                    // this isn't the top layer, so it doesn't need grass
                                     if (layer != currentChunk.getCliffHeightAt(x2, y2) + currentChunk.getHeightAt(x2, y2) - 1){
                                         cliffTexture = images.getTexture("cliffside_dark");
                                         cliffTextureCoords = cliffTexture.getImageTexCoords();
                                     } 
-                                    // If this is the top layer so it needs grass
+                                    // this is the top layer so it needs grass
                                     else {                                    
                                         cliffTexture = images.getTexture("cliffgrass_dark");
                                         cliffTextureCoords = cliffTexture.getImageTexCoords();
@@ -436,7 +443,7 @@ public class Renderer {
 
                                     Renderer.texturedQuad(
                                         gl, 
-                                        AWTTextureIO.newTexture(glprofile, toGlassLess(images.getImage("grass")), false), 
+                                        shadowSquare, 
                                         new float[] {xTiles + endXoffset + 0.2f, layer, yTiles + endYoffset + 1f}, 
                                         new float[] { xTiles + startXoffset + 0.2f, layer, yTiles + startYoffset + 1f}, 
                                         new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
@@ -462,7 +469,7 @@ public class Renderer {
                 
                 
     }
-    public static void texturedQuad(GL2 gl, Texture texture, float[] tr, float[] tl, float[] bl, float[] br){
+    public static void textureQuad(GL2 gl, Texture texture, float[] tr, float[] tl, float[] bl, float[] br){
         gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureObject());
         gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
         gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
@@ -493,6 +500,48 @@ public class Renderer {
             
         gl.glEnd();                            
         gl.glFlush();
+    }
+    public static void texturedQuad(GL2 gl, Texture texture, float[] tr, float[] tl, float[] bl, float[] br){
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureObject());
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+
+        gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+        gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+
+        TextureCoords texcoords = texture.getImageTexCoords();
+
+        gl.glLoadIdentity();        
+
+        gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
+        gl.glRotatef(45f, 1.0f, 0f, 0f);
+        FloatBuffer vertices  = Buffers.newDirectFloatBuffer(
+            new float[]{bl[0], bl[1], bl[2], // bottom left corner
+                      tl[0],  tl[1], tl[2], // top left corner
+                       tr[0],  tr[1], tr[2], // top right corner
+                       br[0], br[1], br[2] // bottom right corner
+                    }
+        );
+        FloatBuffer texVerts  = Buffers.newDirectFloatBuffer(
+            new float[]{texcoords.left(), texcoords.bottom(), // bottom left corner
+                      texcoords.left(),  texcoords.top(), // top left corner
+                       texcoords.right(),  texcoords.top(), // top right corner
+                       texcoords.right(), texcoords.bottom() // bottom right corner
+                    }
+        );
+
+        ByteBuffer indices = Buffers.newDirectByteBuffer(
+            new byte[]{0,1,2, // first triangle (bottom left - top left - top right)
+                       0,2,3}
+        ); // second triangle (bottom left - top right - bottom right)
+
+        gl.glVertexPointer(3, GL2.GL_FLOAT, 0, vertices);
+        gl.glTexCoordPointer(2, GL2.GL_FLOAT, 0, texVerts);
+
+        gl.glDrawElements(GL2.GL_TRIANGLES, 6, GL2.GL_UNSIGNED_BYTE, indices);
+
+        gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+        gl.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
     }
     
     public static void renderGame(){
