@@ -147,12 +147,35 @@ public class Renderer {
     protected static void render( GL2 gl2, int width, int height ) {
         frame.requestFocusInWindow();
 
-        Renderer.textureQuad(gl2, bgTexture, 
-            new float[] {20f, 11.25f, -30f}, 
-            new float[] {-20f, 11.25f, -30f},
-            new float[] {-20f, -11.25f, -30f},
-            new float[] {20f, -11.25f, -30f}
-        );
+        gl2.glLoadIdentity();                
+        
+        // Immediate rendering on purpose; I don't feel a need to create a method specifically for 2d quads :p
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+
+        TextureCoords texcoords2 = bgTexture.getImageTexCoords();
+
+        gl2.glBegin(GL2.GL_QUADS);               
+        
+            gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
+            gl2.glVertex3f(20f, 11.25f, -30f);
+            
+            
+            gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
+            gl2.glVertex3f(-20f, 11.25f, -30f); 
+
+
+            gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
+            gl2.glVertex3f(-20f, -11.25f, -30f);     
+            
+            
+            gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
+            gl2.glVertex3f(20f, -11.25f, -30f);   
+            
+            
+        gl2.glEnd();                            
+        gl2.glFlush();
 
         for(int h = 0; h < Map.HEIGHT; h++){
             renderGroundLayer(gl2, h);

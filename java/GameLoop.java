@@ -24,8 +24,6 @@ public class GameLoop {
                         framesThisSecond = 0;
                         System.out.println(framesLastSecond);
                     }
-                    // Input -> Update -> Render
-                    // game.update(inputState);
 
 
                     Camera.update(Player.getxPos(), Player.getyPos());
@@ -41,5 +39,8 @@ public class GameLoop {
     }
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
+    }
+    public static double dist(double x1, double y1, double x2, double y2){
+        return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
     }
 }
