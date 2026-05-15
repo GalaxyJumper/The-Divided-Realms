@@ -30,7 +30,7 @@ public class Renderer {
 
     static Images images = new Images("img");
 
-    static Slime[] boi = new Slime[10];
+    static Slime[] boi = new Slime[3];
 
 
     static GLCapabilities glcapabilities = new GLCapabilities( glprofile );
@@ -97,6 +97,7 @@ public class Renderer {
         // gl2.glMatrixMode( GL2.GL_MODELVIEW );
         // gl2.glLoadIdentity();
 
+        // Enable all them textures
         gl2.glEnable(GL2.GL_TEXTURE_2D);
         
         gl2.glEnable(GL2.GL_BLEND);
@@ -105,7 +106,6 @@ public class Renderer {
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 
 
-        
 		gl2.glViewport(0, 0, width, height);
 
 		gl2.glMatrixMode(GL2.GL_PROJECTION);
@@ -116,7 +116,7 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
         shadowSquare = AWTTextureIO.newTexture(glprofile, toGlass(images.getImage("grass")), false);
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -136,7 +136,7 @@ public class Renderer {
             e.printStackTrace();
         }
 
-
+        //TODO: move this to game loop
         for(int i = 0; i < boi.length; i++){
             boi[i] = new Slime(7 + Math.random() * 4, 7 + Math.random() *4);
         }
@@ -146,39 +146,29 @@ public class Renderer {
 
     protected static void render( GL2 gl2, int width, int height ) {
         frame.requestFocusInWindow();
-	    gl2.glLoadIdentity();                
-        
-        
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
-        TextureCoords texcoords2 = bgTexture.getImageTexCoords();
+        Renderer.textureQuad(gl2, bgTexture, 
+            new float[] {20f, 11.25f, -30f}, 
+            new float[] {-20f, 11.25f, -30f},
+            new float[] {-20f, -11.25f, -30f},
+            new float[] {20f, -11.25f, -30f}
+        );
 
-        gl2.glBegin(GL2.GL_QUADS);               
-        
-            gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
-            gl2.glVertex3f(20f, 11.25f, -30f);
-            
-            
-            gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
-            gl2.glVertex3f(-20f, 11.25f, -30f); 
-
-
-            gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
-            gl2.glVertex3f(-20f, -11.25f, -30f);     
-            
-            
-            gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
-            gl2.glVertex3f(20f, -11.25f, -30f);   
-            
-            
-        gl2.glEnd();                            
-        gl2.glFlush();
         for(int h = 0; h < Map.HEIGHT; h++){
             renderGroundLayer(gl2, h);
         }
 
+
+
+        for(int i = 0; i < boi.length; i++){
+            boi[i].draw(gl2);
+            boi[i].update();
+        }
+
+        renderPlayer(gl2);
+    }
+
+    public static void renderPlayer(GL2 gl2){
 
         int imageNumIDK = 0;
 
@@ -194,7 +184,6 @@ public class Renderer {
 
 
         if(Player.getState() == Player.PlayerState.DASHING){
-            System.out.println("[Renderer] Dashing!");
             dashAnimations[imageNumIDK].setStartTime(Player.getLastDash());
             gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
         }
@@ -274,14 +263,6 @@ public class Renderer {
             
         gl2.glEnd();                            
         gl2.glFlush();
-        for(int i = 0; i < boi.length; i++){
-            boi[i].draw(gl2);
-            boi[i].update();
-        }
-    }
-
-    public static void renderPlayer(){
-
     }
 
     public static void renderEnvironment(){
@@ -292,14 +273,17 @@ public class Renderer {
             for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
         
                 /////////// RENDER GROUND /////////
+                
+                // Render ground layer for this level. If it's null then this layer is empty and we don't need to draw it
                 if(mapTextures[y][x][layer] != null){
-                Renderer.texturedQuad(gl, mapTextures[y][x][layer], 
-                    new float[] {10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y}, 
-                    new float[] {0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y},
-                    new float[] {0.0f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}, 
-                    new float[] {10f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}
-                );
+                    Renderer.textureQuad(gl, mapTextures[y][x][layer], 
+                        new float[] {10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y}, 
+                        new float[] {0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y},
+                        new float[] {0.0f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}, 
+                        new float[] {10f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}
+                    );
                 } 
+
                 Chunk currentChunk = Map.currentMap().getChunk(x, y);
                 // Render cliff sides
                 for(int y2 = 0; y2 < 10; y2++){
@@ -346,7 +330,7 @@ public class Renderer {
                                 endXoffset = 1;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_BL"), 
+                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_BL"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -360,7 +344,7 @@ public class Renderer {
                                 endXoffset = 1;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_TR"), 
+                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_TR"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -373,7 +357,7 @@ public class Renderer {
                                 endXoffset = 0;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_BR"), 
+                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_BR"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -387,7 +371,7 @@ public class Renderer {
                                 endXoffset = 0;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.texturedQuad(gl, images.getTexture("grass_clifftop_TL"), 
+                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_TL"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -413,7 +397,7 @@ public class Renderer {
                                         cliffTextureCoords = cliffTexture.getImageTexCoords();
                                     }
                                     
-                                    Renderer.texturedQuad(
+                                    Renderer.textureQuad(
                                         gl, 
                                         cliffTexture, 
                                         new float[] {xTiles + endXoffset, layer + 1f, yTiles + endYoffset}, 
@@ -423,7 +407,7 @@ public class Renderer {
                                     );
 
                                     if(layer == currentChunk.getHeightAt(x2, y2)){
-                                        Renderer.texturedQuad(
+                                        Renderer.textureQuad(
                                             gl, 
                                             images.getTexture("cliffshadow (2)"), 
                                             new float[] {xTiles + endXoffset, layer + 1.2f, yTiles + endYoffset}, 
@@ -432,7 +416,7 @@ public class Renderer {
                                             new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
                                         );
                                         
-                                        Renderer.texturedQuad(
+                                        Renderer.textureQuad(
                                             gl, 
                                             images.getTexture("cliffshadow (2)"), 
                                             new float[] {xTiles + endXoffset, layer, yTiles + endYoffset + 1f}, 
@@ -441,7 +425,7 @@ public class Renderer {
                                             new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
                                         );
 
-                                    Renderer.texturedQuad(
+                                    Renderer.textureQuad(
                                         gl, 
                                         shadowSquare, 
                                         new float[] {xTiles + endXoffset + 0.2f, layer, yTiles + endYoffset + 1f}, 
@@ -470,38 +454,6 @@ public class Renderer {
                 
     }
     public static void textureQuad(GL2 gl, Texture texture, float[] tr, float[] tl, float[] bl, float[] br){
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureObject());
-        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-        TextureCoords texcoords = texture.getImageTexCoords();
-
-        gl.glLoadIdentity();        
-
-        gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
-        gl.glRotatef(45f, 1.0f, 0f, 0f);
-
-        gl.glBegin(GL2.GL_QUADS);               
-        
-            gl.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f(tr[0], tr[1], tr[2]); 
-            
-            
-            gl.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f(tl[0], tl[1], tl[2]); 
-
-
-            gl.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f(bl[0], bl[1], bl[2]); 
-            
-            
-            gl.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f(br[0], br[1], br[2]); 
-            
-            
-        gl.glEnd();                            
-        gl.glFlush();
-    }
-    public static void texturedQuad(GL2 gl, Texture texture, float[] tr, float[] tl, float[] bl, float[] br){
         gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureObject());
         gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
         gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);

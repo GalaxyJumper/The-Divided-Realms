@@ -44,7 +44,6 @@ public class Player {
 
         // Dashing logic & cooldown
         if(input.getKey(KeyEvent.VK_SHIFT) && (int) System.currentTimeMillis() - lastDash > 1000){
-            System.out.println(input.getKey(KeyEvent.VK_SHIFT) + "------------------------------------------");
             double xAdd = 0;
             double yAdd = 0;
             if(input.getKey(KeyEvent.VK_W)){

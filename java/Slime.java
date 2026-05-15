@@ -29,24 +29,29 @@ public class Slime extends Enemy{
         yPos += yVel;
         if((int) System.currentTimeMillis() - lastTargetUpdate > timeTilNextTargetUpdate){
             lastTargetUpdate = (int) System.currentTimeMillis();
-            timeTilNextTargetUpdate = (int)(Math.abs(Math.random()) * 10000.0 + 2000.0);
+            timeTilNextTargetUpdate = (int)(Math.abs(Math.random()) * 0.0 + 1200.0);
             pathfindingTarget = new double[] {
                 xPos + Math.random() * 6 - 3,
                 yPos + Math.random() * 6 - 3
             };
         }
-        xVel = GameLoop.clamp((pathfindingTarget[0] - xPos) * 0.5, -0.06, 0.06);
-        yVel = GameLoop.clamp((pathfindingTarget[1] - yPos) * 0.5, -0.06, 0.06);
+        xVel = GameLoop.clamp((pathfindingTarget[0] - xPos) * 0.5, -0.03, 0.03);
+        yVel = GameLoop.clamp((pathfindingTarget[1] - yPos) * 0.5, -0.03, 0.03);
         pathfindingTarget[0] += (Math.random() * 0.024) - 0.012;
         pathfindingTarget[1] += (Math.random() * 0.024) - 0.012;
         if(Math.sqrt(Math.pow(xPos - Player.getxPos(), 2) + Math.pow(yPos - Player.getyPos(), 2)) < 4){
             pathfindingTarget[0] = Player.getxPos();
             pathfindingTarget[1] = Player.getyPos();
         }
+        int currentFrame = (int)Math.floor(`Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 150 % 7);
+        if(currentFrame == 1){
+            xVel *= 0.1;
+            yVel *= 0.1;
+        }
 
     }
     public void draw(GL2 gl){
-        Renderer.texturedQuad(
+        Renderer.textureQuad(
             gl, spritesheet[Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 150 % 7], 
             new float[] {(float)xPos,        1f,   (float)yPos - 0.38f}, 
             new float[] {(float)xPos + 1f, 1f,   (float)yPos - 0.38f},
@@ -54,7 +59,7 @@ public class Slime extends Enemy{
             new float[] {(float)xPos,        0f, (float)yPos}
         );
         
-        Renderer.texturedQuad(
+        Renderer.textureQuad(
             gl, shadowSheet[Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 150 % 7],
             new float[] {(float)xPos + 1f,        0f,   (float)yPos + 1f}, 
             new float[] {(float)xPos, 0f,   (float)yPos + 1f},
