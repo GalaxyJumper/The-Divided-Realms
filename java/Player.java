@@ -79,7 +79,7 @@ public class Player {
             xVel += xAdd;
             yVel += yAdd;
 
-            //Sounds.playSound("Roll");
+            Sounds.playSound("Roll");
         }
 
         xPos += xVel;
@@ -92,9 +92,9 @@ public class Player {
         
         if((int)System.currentTimeMillis() - lastDash < 400){
             playerState = PlayerState.DASHING;
-            System.out.println((int)System.currentTimeMillis());
+            //System.out.println((int)System.currentTimeMillis());
             
-            System.out.println(lastDash);
+           // System.out.println(lastDash);
         } else {
             playerState = PlayerState.IDLE;
         }

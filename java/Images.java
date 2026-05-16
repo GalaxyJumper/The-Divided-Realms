@@ -11,21 +11,25 @@ import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
 public class Images {
     BufferedImage[] imageList;
+    Texture[] textureList;
     String[] imageNames;
 
     ArrayList<BufferedImage> tempImageList = new ArrayList<BufferedImage>();
     ArrayList<String> tempImageNames = new ArrayList<String>();
 
-    public Images(String folderPath){
+    public Images(String folderPath, GLProfile glprofile){
         //Load the images (see recursiveImageLoad)
         recursiveImageLoad(folderPath);
 
         imageList = new BufferedImage[tempImageList.size()];
+        textureList = new Texture[tempImageList.size()];
         imageNames = new String[tempImageNames.size()];
 
         // Load tempImageList into imageList
-        for(int i = 0; i < imageList.length; i++)
+        for(int i = 0; i < imageList.length; i++){
             imageList[i] = tempImageList.get(i);
+            textureList[i] = AWTTextureIO.newTexture(glprofile, tempImageList.get(i), false);
+        }
         // Load tempImageNames into imageNames
         for(int i = 0; i < imageNames.length; i++)
             imageNames[i] = tempImageNames.get(i);
@@ -72,7 +76,7 @@ public class Images {
     public Texture getTexture(String name){
         for(int i = 0; i < imageNames.length; i++){
             if(imageNames[i].equals(name)){
-                return AWTTextureIO.newTexture(GLProfile.getDefault(), imageList[i], false);
+                return textureList[i];
             }
         }
         return null;

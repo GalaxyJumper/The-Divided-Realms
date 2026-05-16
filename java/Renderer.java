@@ -28,9 +28,9 @@ public class Renderer {
     
     static GLProfile glprofile = GLProfile.getDefault();
 
-    static Images images = new Images("img");
+    static Images images;
 
-    static Slime[] boi = new Slime[3];
+    static Slime[] boi;
 
 
     static GLCapabilities glcapabilities = new GLCapabilities( glprofile );
@@ -41,15 +41,7 @@ public class Renderer {
     static Texture[][][] mapTextures = null; 
     static Texture[] playerIdle = null;
     static Texture shadowSquare = null;
-    static Animation[] dashAnimations = new Animation[]{
-        new Animation(images.getImage("playerQuickDash").getSubimage(0, 0, 96, 24), 4, 1, 4, 100, false),
-        
-        new Animation(images.getImage("playerQuickDash").getSubimage(0, 24, 96, 24), 4, 1, 4, 100, false),
-        
-        new Animation(images.getImage("playerQuickDash").getSubimage(0, 48, 96, 24), 4, 1, 4, 100, false),
-        
-        new Animation(images.getImage("playerQuickDash").getSubimage(0, 72, 96, 24), 4, 1, 4, 100, false)
-    };
+    static Animation[] dashAnimations;
 
     public static void init(){
         glcanvas.addGLEventListener( new GLEventListener() {
@@ -80,9 +72,9 @@ public class Renderer {
 
         frame.setSize( 1080, 720 );
         frame.setVisible( true );
-        
         frame.addKeyListener(GameLoop.input);
         frame.setFocusable(true);
+
         frame.requestFocusInWindow();
         System.out.println("[Renderer] Completed init");
     }
@@ -92,6 +84,12 @@ public class Renderer {
 
         // coordinate system origin at lower left with width and height same as the window
         GLU glu = new GLU();
+
+        images = new Images("img", glprofile);
+
+        boi = new Slime[3];
+
+
         // glu.gluOrtho2D( 0.0f, width, 0.0f, height );
 
         // gl2.glMatrixMode( GL2.GL_MODELVIEW );
@@ -116,7 +114,7 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
         shadowSquare = AWTTextureIO.newTexture(glprofile, toGlass(images.getImage("grass")), false);
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -135,6 +133,15 @@ public class Renderer {
         catch(IOException e){
             e.printStackTrace();
         }
+        dashAnimations = new Animation[]{
+            new Animation(images.getImage("playerQuickDash").getSubimage(0, 0, 96, 24), 4, 1, 4, 100, false),
+            
+            new Animation(images.getImage("playerQuickDash").getSubimage(0, 24, 96, 24), 4, 1, 4, 100, false),
+            
+            new Animation(images.getImage("playerQuickDash").getSubimage(0, 48, 96, 24), 4, 1, 4, 100, false),
+            
+            new Animation(images.getImage("playerQuickDash").getSubimage(0, 72, 96, 24), 4, 1, 4, 100, false)
+        };
 
         //TODO: move this to game loop
         for(int i = 0; i < boi.length; i++){

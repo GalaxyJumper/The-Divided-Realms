@@ -8,7 +8,7 @@ abstract class Enemy {
 
     protected double health;
 
-    protected Images images = new Images("img/enemies");
+    protected Images images = new Images("img/enemies", Renderer.getGLProfile());
 
     public Enemy(double x, double y){
         xPos = x;

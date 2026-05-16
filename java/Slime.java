@@ -51,9 +51,9 @@ public class Slime extends Enemy{
         // On frame 1 the slime is touching the ground and so that is when we update the target pose. 
         // Also slow down for that slime jump effect.
 
-        if(currentFrame == 1){
-            xVel *= 0.05;
-            yVel *= 0.05;
+        if(currentFrame >= 1 && currentFrame <= 2){
+            xVel *= 0.25;
+            yVel *= 0.25;
             if(GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 5) lastAggro = now;
             if(now - lastAggro < aggroTime && GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 9){
                 pathfindingTarget[0] = Player.getxPos();

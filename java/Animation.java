@@ -55,8 +55,8 @@ public class Animation {
         if(y > widthFrames * frameWidth || y < 0){
             y = 0;
         }
-        System.out.println("x: " + x + " y: " + y + " height: " + frameHeight + " width: " + frameWidth);
-        System.out.println("Frame time: " + frameTime + " Start time: " + startTime);
+        //System.out.println("x: " + x + " y: " + y + " height: " + frameHeight + " width: " + frameWidth);
+        //System.out.println("Frame time: " + frameTime + " Start time: " + startTime);
         return sheet.getSubimage(x, y, frameWidth, frameHeight);
     }
         public BufferedImage getFrame(int customTime
