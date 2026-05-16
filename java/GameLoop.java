@@ -36,6 +36,16 @@ public class GameLoop {
         };
         thread.setName("GameLoop");
         thread.start();
+        // rectangle collisions:
+
+        // DETECTION:
+        //
+        // graph collisions:
+
+        // for every point:
+        //  if(point < mx + b and is within bounds){
+        //      everything move by   
+        //  }
     }
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));
