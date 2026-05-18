@@ -14,6 +14,7 @@ public class Player {
     private static double xVel = 0;
     private static double yVel = 0;
     public static int lastDash = (int)System.currentTimeMillis() - 420;
+    private static int lastBlock = (int)System.currentTimeMillis() - 420;
 
     private static PlayerState playerState = PlayerState.IDLE;
 
@@ -81,6 +82,12 @@ public class Player {
 
             Sounds.playSound("Roll");
         }
+                // Dashing logic & cooldown
+        if(input.getKey(KeyEvent.VK_SPACE) && (int) System.currentTimeMillis() - lastBlock > 1000){
+            lastBlock = (int) System.currentTimeMillis();
+
+            Sounds.playSound("Blocking");
+        }
 
         xPos += xVel;
         yPos += yVel;
@@ -92,10 +99,11 @@ public class Player {
         
         if((int)System.currentTimeMillis() - lastDash < 400){
             playerState = PlayerState.DASHING;
-            //System.out.println((int)System.currentTimeMillis());
-            
-           // System.out.println(lastDash);
-        } else {
+        }
+        else if((int)System.currentTimeMillis() - lastBlock < 400){
+            playerState = PlayerState.BLOCKING;
+        } 
+        else {
             playerState = PlayerState.IDLE;
         }
     }
@@ -124,6 +132,9 @@ public class Player {
     }
     public static int getLastDash() {
         return lastDash;
+    }
+    public static int getLastBlock() {
+        return lastBlock;
     }
     
     

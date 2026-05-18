@@ -30,7 +30,9 @@ public class Renderer {
 
     static Images images;
 
-    static Slime[] boi;
+    static Bee[] boi;
+
+    static Slime[] bois;
 
 
     static GLCapabilities glcapabilities = new GLCapabilities( glprofile );
@@ -42,7 +44,7 @@ public class Renderer {
     static Texture[] playerIdle = null;
     static Texture shadowSquare = null;
     static Animation[] dashAnimations;
-
+    static Animation blockAnimation;
     public static void init(){
         glcanvas.addGLEventListener( new GLEventListener() {
             
@@ -87,7 +89,8 @@ public class Renderer {
 
         images = new Images("img", glprofile);
 
-        boi = new Slime[3];
+        boi = new Bee[5];
+        bois = new Slime[5];
 
 
         // glu.gluOrtho2D( 0.0f, width, 0.0f, height );
@@ -114,7 +117,7 @@ public class Renderer {
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
 
-        gl2.setSwapInterval(0); // set to 0 to remove fps cap (turn off VSync)
+        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
         shadowSquare = AWTTextureIO.newTexture(glprofile, toGlass(images.getImage("grass")), false);
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -142,10 +145,16 @@ public class Renderer {
             
             new Animation(images.getImage("playerQuickDash").getSubimage(0, 72, 96, 24), 4, 1, 4, 100, false)
         };
+        blockAnimation = new Animation(images.getImage("blockSheet"), 4, 4, 16, 25, false);
 
         //TODO: move this to game loop
         for(int i = 0; i < boi.length; i++){
-            boi[i] = new Slime(7 + Math.random() * 4, 7 + Math.random() *4);
+            boi[i] = new Bee(6 + Math.random() * 9, 6 + Math.random() *9);
+        }
+        
+        //TODO: move this to game loop
+        for(int i = 0; i < bois.length; i++){
+            bois[i] = new Slime(6 + Math.random() * 10, 6 + Math.random() *5);
         }
 
 
@@ -194,6 +203,10 @@ public class Renderer {
             boi[i].draw(gl2);
             boi[i].update();
         }
+        for(int i = 0; i < bois.length; i++){
+            bois[i].draw(gl2);
+            bois[i].update();
+        }
 
         renderPlayer(gl2);
     }
@@ -221,9 +234,6 @@ public class Renderer {
         if(Player.getState() == Player.PlayerState.ATTACKING){
 
         }
-        if(Player.getState() == Player.PlayerState.BLOCKING){
-            
-        }
         
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
@@ -235,19 +245,19 @@ public class Renderer {
         gl2.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex3f((float)Player.getxPos(),        1f + mapheight,   (float)Player.getyPos() - 0.38f);
+            gl2.glVertex3f((float)Player.getxPos(),        1f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)),   (float)Player.getyPos() - 0.38f);
             
             
             gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex3f((float)Player.getxPos() + 1f, 1f + mapheight,   (float)Player.getyPos() - 0.38f); 
+            gl2.glVertex3f((float)Player.getxPos() + 1f, 1f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)),   (float)Player.getyPos() - 0.38f); 
 
 
             gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight, (float)Player.getyPos());     
+            gl2.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)), (float)Player.getyPos());     
             
             
             gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex3f((float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos());   
+            gl2.glVertex3f((float)Player.getxPos(),        0f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)), (float)Player.getyPos());   
             
             
         gl2.glEnd();                            
@@ -293,6 +303,17 @@ public class Renderer {
             
         gl2.glEnd();                            
         gl2.glFlush();
+        
+        if(Player.getState() == Player.PlayerState.BLOCKING){
+            blockAnimation.setStartTime(Player.getLastBlock());
+            Renderer.textureQuad(
+                gl2, AWTTextureIO.newTexture(glprofile, blockAnimation.getFrame(), false),
+                new float[]{(float)Player.getxPos(),        1f + mapheight,   (float)Player.getyPos() - 0.38f},
+                new float[]{(float)Player.getxPos() + 1f, 1f + mapheight,   (float)Player.getyPos() - 0.38f}, 
+                new float[]{(float)Player.getxPos() + 1f, 0f + mapheight, (float)Player.getyPos()},
+                new float[]{(float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos()}
+            );
+        }
     }
 
     public static void renderEnvironment(){

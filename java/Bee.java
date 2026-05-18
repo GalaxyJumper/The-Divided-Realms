@@ -9,25 +9,25 @@ import com.jogamp.opengl.util.texture.Texture;
 public class Bee extends Enemy{
     private double[] pathfindingTarget = new double[2];
 
-    private int lastTargetUpdate = (int) System.currentTimeMillis() - 5000;
-    private int timeTilNextTargetUpdate = 4500;
+    private double lastDirectionUpdate = (int) System.currentTimeMillis() - 8000;
+    private double timeTilNextDirectionUpdate = 5;
+    double xAccel = 0.001;
+    double yAccel = 0.001;
+
 
     private int lastAggro = (int) System.currentTimeMillis() - 10000;
-
     private int aggroTime = 5000;
 
-    Images enemyImages = new Images("img/enemies");
-
-    private Texture[] spritesheet = Images.readSpriteSheet(images.getImage("slime"), GLProfile.getDefault(), 2, 4);
+    Images enemyImages = new Images("img/enemies", Renderer.getGLProfile());
+    private Texture[] spritesheet = Images.readSpriteSheet(images.getImage("bee"), GLProfile.getDefault(), 8, 3);
     private Texture[] shadowSheet = new Texture[spritesheet.length];
-
     private int animationTimeOffset = (int)(Math.random() * 1500.0);
 
     public Bee(double x, double y){
         super(x, y);
         for(int i = 0; i < shadowSheet.length; i++){
             shadowSheet[i] = Renderer.toGlassTexture(
-                Images.readSpriteSheetToBufferedImage(images.getImage("slime"), GLProfile.getDefault(), 2, 4)[i]
+                Images.readSpriteSheetToBufferedImage(images.getImage("bee"), GLProfile.getDefault(), 8, 3)[i]
             );
         }
     }
@@ -39,61 +39,60 @@ public class Bee extends Enemy{
 
         xPos += xVel; 
         yPos += yVel;
+        if(now - lastDirectionUpdate > timeTilNextDirectionUpdate){
+            xAccel = Math.random() * 0.002 - 0.001;
+            
+            yAccel = Math.random() * 0.002 - 0.001;
 
+            lastDirectionUpdate = now;
+
+            timeTilNextDirectionUpdate = Math.random() * 1000 + 500;
+        }
 
         double distanceToTarget = GameLoop.dist(xPos, yPos, pathfindingTarget[0], pathfindingTarget[1]);
+        
+        // Close to the player: reset aggro timer.
+        if(GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 5) lastAggro = now;
+        
+        // Aggroed: set target to the player and move in that direction.
+        if(now - lastAggro < aggroTime && GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 5){
+            pathfindingTarget[0] = Player.getxPos();
+            pathfindingTarget[1] = Player.getyPos();
+            
+            distanceToTarget = Math.max(0.5, distanceToTarget);
 
-        // Set velocity as a vector pointing in the direction of the target
-        yVel = 0.07 * (pathfindingTarget[1] - yPos) / distanceToTarget;
-        xVel = 0.07 * (pathfindingTarget[0] - xPos) / distanceToTarget;
+            // Set velocity as a vector pointing in the direction of the target
+            yVel = 0.09 * (pathfindingTarget[1] - yPos) / distanceToTarget;
+            xVel = 0.09 * (pathfindingTarget[0] - xPos) / distanceToTarget;
+        }
+        // Non aggroed: move around. 
+        else {
+            yVel += yAccel;
+            xVel += xAccel;
 
-        int currentFrame = (int)Math.floor(Math.abs(now + animationTimeOffset) / 100 % 7);
-
-        // On frame 1 the slime is touching the ground and so that is when we update the target pose. 
-        // Also slow down for that slime jump effect.
-
-        if(currentFrame == 1){
-            xVel *= 0.05;
-            yVel *= 0.05;
-            if(GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 5) lastAggro = now;
-            if(now - lastAggro < aggroTime && GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 9){
-                pathfindingTarget[0] = Player.getxPos();
-                pathfindingTarget[1] = Player.getyPos();
-            } else {
-                pathfindingTarget[0] = xPos + Math.random() * 10 - 5;
-                pathfindingTarget[1] = yPos + Math.random() * 10 - 5;
-            }
+            xVel = GameLoop.clamp(xVel, -0.05, 0.05);
+            
+            yVel = GameLoop.clamp(yVel, -0.05, 0.05);
         }
 
     }
     public void draw(GL2 gl){
+        double beeAngle = Math.atan2(yVel, xVel) + Math.PI / 2;
+        int beeDirection = 7 - ((int)Math.floor((beeAngle + Math.PI/8) / (Math.PI/4)) + 7) % 8;
         Renderer.textureQuad(
-            gl, spritesheet[Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 100 % 7], 
-            new float[] {(float)xPos,        1f,   (float)yPos - 0.38f}, 
-            new float[] {(float)xPos + 1f, 1f,   (float)yPos - 0.38f},
-            new float[] {(float)xPos + 1f, 0f, (float)yPos},
-            new float[] {(float)xPos,        0f, (float)yPos}
+            gl, spritesheet[beeDirection * 3 + (Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 30 % 3)], 
+            new float[] {(float)xPos - 0.1f,        1.1f,   (float)yPos - 0.48f}, 
+            new float[] {(float)xPos + 1.1f, 1.1f,   (float)yPos - 0.48f},
+            new float[] {(float)xPos + 1.1f, 0f, (float)yPos},
+            new float[] {(float)xPos - 0.1f,        0f, (float)yPos}
         );
         
         Renderer.textureQuad(
-            gl, shadowSheet[Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 100 % 7],
-            new float[] {(float)xPos + 1f,        0f,   (float)yPos + 1f}, 
-            new float[] {(float)xPos, 0f,   (float)yPos + 1f},
-            new float[] {(float)xPos, 0f, (float)yPos},
-            new float[] {(float)xPos + 1f,        0f, (float)yPos}
+            gl, shadowSheet[beeDirection * 3 + (Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 30 % 3)],
+            new float[] {(float)xPos - 0.1f, 0f, (float)yPos - 0.2f}, 
+            new float[] {(float)xPos + 1.1f, 0f, (float)yPos - 0.2f},
+            new float[] {(float)xPos + 1.1f, 0f, (float)yPos + 1f},
+            new float[] {(float)xPos - 0.1f, 0f, (float)yPos + 1f}
         );
-    }
-    public Texture[][] generateTextures(){
-        BufferedImage[][] images = new BufferedImage[8][3];
-        BufferedImage[] spritesheet = Images.readSpriteSheetToBufferedImage(enemyImages.getImage("bee"), Renderer.getGLProfile(), 2, 2);
-
-        for(int i = 0; i < 8; i++){
-            for(int k = 0; k < 3; k++){
-                images[i][k] = new BufferedImage(24, 24, BufferedImage.BITMASK);
-                Graphics g = images[i][k].createGraphics();
-                double angle = (380/8) * i;
-                
-            }
-        }
     }
 }
