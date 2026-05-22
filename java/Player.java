@@ -80,13 +80,13 @@ public class Player {
             xVel += xAdd;
             yVel += yAdd;
 
-            Sounds.playSound("Roll");
+            //Sounds.playSound("Roll");
         }
                 // Dashing logic & cooldown
         if(input.getKey(KeyEvent.VK_SPACE) && (int) System.currentTimeMillis() - lastBlock > 1000){
             lastBlock = (int) System.currentTimeMillis();
 
-            Sounds.playSound("Blocking");
+            //Sounds.playSound("Blocking");
         }
 
         xPos += xVel;

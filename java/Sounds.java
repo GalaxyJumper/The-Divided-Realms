@@ -12,6 +12,8 @@ import java.util.Random;
 //-------------------------------------------------// 
 public class Sounds {
 
+    static boolean isHeadless = false;
+    
     //Create list
     private static File[] soundFiles;
     private static String[] soundNames;
@@ -123,40 +125,41 @@ public static void playSound(String name) {
 
     //Play Sound Method
     public static void playSound(String name){
+        if(!isHeadless){
+            try{
 
-        try{
+                //For every SoundName
+                for(int i = 0; i < soundNames.length; i++){
 
-            //For every SoundName
-            for(int i = 0; i < soundNames.length; i++){
+                    //If the SoundName equal the Given Soundname
+                    if(soundNames[i].equals(name)){
 
-                //If the SoundName equal the Given Soundname
-                if(soundNames[i].equals(name)){
-
-                    if (soundClip[i].isOpen()) {
-                        soundClip[i].stop();
-                        soundClip[i].flush();
-                        soundClip[i].setFramePosition(0);
-                    } else {
-                        soundClip[i].open(soundAudio[i]);  // Open only if not already opened
-                        if(soundNames[i].equals("Countryside")){
-                            soundClip[i].setFramePosition(
-                                random.nextInt(0, soundClip[i].getFrameLength())
-                            );
+                        if (soundClip[i].isOpen()) {
+                            soundClip[i].stop();
+                            soundClip[i].flush();
+                            soundClip[i].setFramePosition(0);
+                        } else {
+                            soundClip[i].open(soundAudio[i]);  // Open only if not already opened
+                            if(soundNames[i].equals("Countryside")){
+                                soundClip[i].setFramePosition(
+                                    random.nextInt(soundClip[i].getFrameLength())
+                                );
+                            }
                         }
+
+                        soundClip[i].start();
+                        break;  // Exit loop once sound is found and played
+
                     }
-
-                    soundClip[i].start();
-                    break;  // Exit loop once sound is found and played
-
                 }
             }
-        }
 
-        //Cacth for the program
-        catch (IOException | LineUnavailableException error) {
+            //Cacth for the program
+            catch (IOException | LineUnavailableException error) {
 
-            //If something hapeens print it out
-            error.printStackTrace();
+                //If something hapeens print it out
+                error.printStackTrace();
+            }
         }
     }
     

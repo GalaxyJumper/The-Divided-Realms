@@ -34,6 +34,9 @@ public class Renderer {
 
     static Slime[] bois;
 
+    static FastNoise noise = new FastNoise(5);
+
+    static double startTime = (double)System.currentTimeMillis();
 
     static GLCapabilities glcapabilities = new GLCapabilities( glprofile );
     static final GLCanvas glcanvas = new GLCanvas( glcapabilities );
@@ -320,13 +323,14 @@ public class Renderer {
         
     }
     public static void renderGroundLayer(GL2 gl, int layer){
+        float sysTime = (float)( ((double) System.currentTimeMillis() - startTime) / 1000.0);
         for(int y = 0; y < Map.currentMap().getHeightChunks(); y++){
             for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
         
                 /////////// RENDER GROUND /////////
                 
                 // Render ground layer for this level. If it's null then this layer is empty and we don't need to draw it
-                if(mapTextures[y][x][layer] != null){
+                if(mapTextures[y][x][layer] != null && !(y == 1 && x == 1)){
                     Renderer.textureQuad(gl, mapTextures[y][x][layer], 
                         new float[] {10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y}, 
                         new float[] {0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y},
@@ -334,7 +338,20 @@ public class Renderer {
                         new float[] {10f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}
                     );
                 } 
-
+                if(y == 1 &&  x == 1 && layer == 0){
+                    
+                    System.out.println(sysTime);
+                    for(int a = 10; a < 20; a++){
+                        for(int b = 10; b < 20; b++){
+                            Renderer.textureQuad(gl, shadowSquare, 
+                                new float[] {1f + 1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a + 1 + sysTime),  24 * (b    )),      1f*(float)b}, 
+                                new float[] {     1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a     + sysTime),  24 * (b    )),      1f*(float)b},
+                                new float[] {     1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a     + sysTime),  24 * (b + 1)), 1f + 1f*(float)b}, 
+                                new float[] {1f + 1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a + 1 + sysTime),  24 * (b + 1)), 1f + 1f*(float)b}
+                            );
+                        }
+                    }
+                }
                 Chunk currentChunk = Map.currentMap().getChunk(x, y);
                 // Render cliff sides
                 for(int y2 = 0; y2 < 10; y2++){
