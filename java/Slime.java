@@ -54,7 +54,7 @@ public class Slime extends Enemy{
         if(currentFrame >= 1 && currentFrame <= 2){
             xVel *= 0.25;
             yVel *= 0.25;
-            if(GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 5) lastAggro = now;
+            if(GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 0.5) lastAggro = now;
             if(now - lastAggro < aggroTime && GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 9){
                 pathfindingTarget[0] = Player.getxPos();
                 pathfindingTarget[1] = Player.getyPos();
