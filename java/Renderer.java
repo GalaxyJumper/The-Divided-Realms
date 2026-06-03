@@ -212,6 +212,43 @@ public class Renderer {
         }
 
         renderPlayer(gl2);
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("image (13)").getSubimage(0, 0, 36, 72), false),
+            new float[] {11.5f, 4.24264f, 11.5f},
+            new float[] {10f, 4.24264f, 10f},
+            new float[] {10f, 0f, 10f},
+            new float[] {11.5f, 0f, 11.5f}
+        );
+
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("image (13)"), false),
+            new float[] {13f, 4.24264f, 10f},
+            new float[] {10f, 4.24264f, 13f},
+            new float[] {10f, 0f, 13f},
+            new float[] {13f, 0f, 10f}
+        );        
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("image (13)").getSubimage(36, 0, 36, 72), false),
+            new float[] {13f, 4.24264f, 13f},
+            new float[] {11.5f, 4.24264f, 11.5f},
+            new float[] {11.5f, 0f, 11.5f},
+            new float[] {13f, 0f, 13f}
+        );
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("image (18)"), false),
+            new float[] {13f, 2.8f, 10.6f},
+            new float[] {10f, 2.8f, 10.6f},
+            new float[] {10f, 0.6f, 12.6f},
+            new float[] {13f, 0.6f, 12.6f}
+        ); 
+
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("image (22)"), false),
+            new float[] {12.8f, 3.5f, 10.6f},
+            new float[] {10.2f, 3.5f, 10.6f},
+            new float[] {10.2f, 1.3f, 12.2f},
+            new float[] {12.8f, 1.3f, 12.2f}
+        ); 
     }
 
     public static void renderPlayer(GL2 gl2){
