@@ -7,8 +7,8 @@ public class Player {
         BLOCKING,
         ATTACKING
     }
-    private static double xPos = 0;
-    private static double yPos = 0.5;
+    private static double xPos = 7;
+    private static double yPos = 8.5;
     private static int xDir = 0;
     private static int yDir = 0;
     private static double xVel = 0;

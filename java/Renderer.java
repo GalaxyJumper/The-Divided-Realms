@@ -324,13 +324,14 @@ public class Renderer {
     }
     public static void renderGroundLayer(GL2 gl, int layer){
         float sysTime = (float)( ((double) System.currentTimeMillis() - startTime) / 1000.0);
+        
         for(int y = 0; y < Map.currentMap().getHeightChunks(); y++){
             for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
         
                 /////////// RENDER GROUND /////////
                 
                 // Render ground layer for this level. If it's null then this layer is empty and we don't need to draw it
-                if(mapTextures[y][x][layer] != null && !(y == 1 && x == 1)){
+                if(mapTextures[y][x][layer] != null){
                     Renderer.textureQuad(gl, mapTextures[y][x][layer], 
                         new float[] {10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y}, 
                         new float[] {0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y},
@@ -338,20 +339,23 @@ public class Renderer {
                         new float[] {10f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}
                     );
                 } 
-                if(y == 1 &&  x == 1 && layer == 0){
-                    
-                    System.out.println(sysTime);
-                    for(int a = 10; a < 20; a++){
-                        for(int b = 10; b < 20; b++){
-                            Renderer.textureQuad(gl, shadowSquare, 
-                                new float[] {1f + 1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a + 1 + sysTime),  24 * (b    )),      1f*(float)b}, 
-                                new float[] {     1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a     + sysTime),  24 * (b    )),      1f*(float)b},
-                                new float[] {     1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a     + sysTime),  24 * (b + 1)), 1f + 1f*(float)b}, 
-                                new float[] {1f + 1f*(float)a, -1f + layer + 0.3f * noise.GetNoise(24 * (a + 1 + sysTime),  24 * (b + 1)), 1f + 1f*(float)b}
-                            );
-                        }
-                    }
-                }
+                float a = 10;
+                float b = 10;
+                float noiseValue = noise.GetNoise(24 * (a + 1 + sysTime),  24 * (b));
+                Texture texture = 
+                    toWater(
+                        images.getImage(
+                            "water " + (Math.round(Math.abs(noise.GetNoise(20 * a, 20 * b))) + 1)
+                        ), 
+                        noiseValue
+                    );
+                Renderer.textureQuad(gl, texture, 
+                    new float[] {1f + 1f*(float)a, -1f + layer + 0.3f * noiseValue,      1f*(float)b}, 
+                    new float[] {     1f*(float)a, -1f + layer + 0.3f * noiseValue,      1f*(float)b},
+                    new float[] {     1f*(float)a, -1f + layer + 0.3f * noiseValue, 1f + 1f*(float)b}, 
+                    new float[] {1f + 1f*(float)a, -1f + layer + 0.3f * noiseValue, 1f + 1f*(float)b}
+                );
+                            
                 Chunk currentChunk = Map.currentMap().getChunk(x, y);
                 // Render cliff sides
                 for(int y2 = 0; y2 < 10; y2++){
@@ -589,6 +593,33 @@ public class Renderer {
         g.setColor(color);
         g.fillRect(0, 0, image.getWidth(), image.getHeight());
         return result;
+    }
+        public static Texture toWater(BufferedImage image, float transparency){
+        transparency = (float)GameLoop.clamp(transparency*transparency, 0.0f, 0.7f);
+        // Color of the final shadow (usually black)
+        Color color = new Color(0, 0, 0);
+        // Result image
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), Transparency.BITMASK);
+
+        // Copy the alpha channel from the original image
+        Graphics2D g = result.createGraphics();
+        
+        // Set the composite rule to only affect non-transparent pixels
+        /* @see https://ssp.impulsetrain.com/porterduff.html */
+        g.setComposite(AlphaComposite.SrcOver.derive(0.9f));
+
+        g.drawImage(image, 0, 0, null);
+
+        
+        // Set the composite rule to only affect non-transparent pixels
+        /* @see https://ssp.impulsetrain.com/porterduff.html */
+        g.setComposite(AlphaComposite.SrcOver.derive(transparency));
+
+        g.setColor(Color.WHITE);
+
+        g.fillRect(0, 0, image.getWidth(), image.getHeight());
+
+        return AWTTextureIO.newTexture(glprofile, result, false);
     }
     public static Texture toGlassTexture(BufferedImage image){
         
