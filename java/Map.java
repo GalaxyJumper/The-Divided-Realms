@@ -1,4 +1,6 @@
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Map {
@@ -60,6 +62,9 @@ public class Map {
 
     public int getWidthChunks() {
         return widthChunks;
+    }
+    public void editTile(int chunkX, int chunkY, int tileX, int tileY, String newValue){
+        mapData[chunkY][chunkX].editTile(tileX, tileY, newValue);
     }
 
     ////////////////////////// STATIC (UTILITY) METHODS //////////////////////////
@@ -202,5 +207,59 @@ public class Map {
 
     public static Map currentMap(){
         return maps[currentMapNum - 1];
+    }
+    public void saveMap(){
+        System.out.println("Saving map... please wait");
+        File outputCliffsFile = new File("MAPTOOL_OUTPUT/cliffs.map");
+        File outputHeightFile = new File("MAPTOOL_OUTPUT/height.map");
+        File outputEnvFile = new File("MAPTOOL_OUTPUT/env.map");
+        File outputTileFile = new File("MAPTOOL_OUTPUT/tiles.map");
+        FileWriter fwc;
+        FileWriter fwh;
+        FileWriter fwe;
+        FileWriter fwt;
+
+        try {
+            fwc = new FileWriter(outputCliffsFile, false);
+            fwc.write("");
+            for(int y = 0; y < Map.currentMap().heightChunks; y++){
+                for(int x = 0; x < Map.currentMap().widthChunks; x++){
+                    fwc.append(Map.currentMap().getChunk(x, y).getCliffDataAsString());
+                }
+                fwc.write("\n");
+            }
+            fwc.close();
+
+            fwh = new FileWriter(outputHeightFile, false);
+            fwh.write("");
+            for(int y = 0; y < Map.currentMap().heightChunks; y++){
+                for(int x = 0; x < Map.currentMap().widthChunks; x++){
+                    fwh.append(Map.currentMap().getChunk(x, y).getHeightDataAsString());
+                }
+                fwh.write("\n");
+            }
+            fwh.close();
+
+            fwe = new FileWriter(outputEnvFile, false);
+            fwe.write("");
+            for(int y = 0; y < Map.currentMap().heightChunks; y++){
+                for(int x = 0; x < Map.currentMap().widthChunks; x++){
+                    // fwe.append(Map.currentMap().getChunk(x, y).getEnvDataAsString());
+                }
+                fwe.write("\n");
+            }
+            fwe.close();
+
+            fwt = new FileWriter(outputTileFile, false);
+            fwt.write("");
+            for(int y = 0; y < Map.currentMap().heightChunks; y++){
+                for(int x = 0; x < Map.currentMap().widthChunks; x++){
+                    fwt.append(Map.currentMap().getChunk(x, y).getTileDataAsString());
+                }
+                fwt.write("\n");
+            }
+            fwt.close();
+        } catch(IOException e){e.printStackTrace();}
+        System.out.println("Map saved!");
     }
 }

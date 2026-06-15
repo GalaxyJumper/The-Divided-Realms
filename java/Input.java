@@ -4,19 +4,19 @@ public class Input implements KeyListener{
     private static boolean[] keys;
 
     public Input(){
-        keys = new boolean[90];
+        keys = new boolean[120];
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() < 90){
+        if(e.getKeyCode() < 120){
             keys[e.getKeyCode()] = true;
         } 
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if(e.getKeyCode() < 90){
+        if(e.getKeyCode() < 120){
             keys[e.getKeyCode()] = false;
         }
     }

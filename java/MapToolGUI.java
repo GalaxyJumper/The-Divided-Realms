@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-public class Renderer {
+public class MapToolGUI {
     
     static GLProfile glprofile = GLProfile.getDefault();
 
@@ -54,7 +54,7 @@ public class Renderer {
             @Override
             public void reshape( GLAutoDrawable glautodrawable, int x, int y, int width, int height ) {
                 
-                Renderer.setup( glautodrawable.getGL().getGL2(), width, height );
+                MapToolGUI.setup( glautodrawable.getGL().getGL2(), width, height );
             }
             
             @Override
@@ -68,7 +68,7 @@ public class Renderer {
             
             @Override
             public void display( GLAutoDrawable glautodrawable ) {
-                Renderer.render( glautodrawable.getGL().getGL2(), glautodrawable.getSurfaceWidth(), glautodrawable.getSurfaceHeight() );
+                MapToolGUI.render( glautodrawable.getGL().getGL2(), glautodrawable.getSurfaceWidth(), glautodrawable.getSurfaceHeight() );
             }
         });
 
@@ -77,11 +77,11 @@ public class Renderer {
 
         frame.setSize( 1080, 720 );
         frame.setVisible( true );
-        frame.addKeyListener(GameLoop.input);
+        frame.addKeyListener(MapTool.input);
         frame.setFocusable(true);
 
         frame.requestFocusInWindow();
-        System.out.println("[Renderer] Completed init");
+        System.out.println("[MapToolGUI] Completed init");
     }
 
     protected static void setup( GL2 gl2, int width, int height ) {
@@ -124,13 +124,13 @@ public class Renderer {
         shadowSquare = AWTTextureIO.newTexture(glprofile, toGlass(images.getImage("grass")), false);
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
-            bgTexture = Renderer.getTextureFromFile(new File("img/Imagation.png"));
+            bgTexture = MapToolGUI.getTextureFromFile(new File("img/Imagation.png"));
             mapTextures = new Texture[Map.currentMap().getHeightChunks()][Map.currentMap().getWidthChunks()][Map.HEIGHT];
             
             for(int y = 0; y < mapTextures.length; y++){
                 for(int x = 0; x < mapTextures[y].length; x++){
                     for(int h = 0; h < Map.HEIGHT; h++){
-                        mapTextures[y][x][h] = Renderer.getChunkTextures(Map.currentMap().getChunk(x, y))[h];
+                        mapTextures[y][x][h] = MapToolGUI.getChunkTextures(Map.currentMap().getChunk(x, y))[h];
                     }
                 }   
             }
@@ -197,22 +197,18 @@ public class Renderer {
         gl2.glFlush();
 
         for(int h = 0; h < Map.HEIGHT; h++){
-            renderGroundLayer(gl2, h);
+            renderChunks(gl2, h, MapTool.currentChunkX, MapTool.currentChunkY);
         }
 
 
 
         for(int i = 0; i < boi.length; i++){
             boi[i].draw(gl2);
-            boi[i].update();
         }
         for(int i = 0; i < bois.length; i++){
             bois[i].draw(gl2);
-            bois[i].update();
         }
-
-        renderPlayer(gl2);
-        Renderer.textureQuad(gl2, 
+        MapToolGUI.textureQuad(gl2, 
             AWTTextureIO.newTexture(glprofile, images.getImage("image (13)").getSubimage(0, 0, 36, 72), false),
             new float[] {11.5f, 4.24264f, 11.5f},
             new float[] {10f, 4.24264f, 10f},
@@ -220,21 +216,21 @@ public class Renderer {
             new float[] {11.5f, 0f, 11.5f}
         );
 
-        Renderer.textureQuad(gl2, 
+        MapToolGUI.textureQuad(gl2, 
             AWTTextureIO.newTexture(glprofile, images.getImage("image (13)"), false),
             new float[] {13f, 4.24264f, 10f},
             new float[] {10f, 4.24264f, 13f},
             new float[] {10f, 0f, 13f},
             new float[] {13f, 0f, 10f}
         );        
-        Renderer.textureQuad(gl2, 
+        MapToolGUI.textureQuad(gl2, 
             AWTTextureIO.newTexture(glprofile, images.getImage("image (13)").getSubimage(36, 0, 36, 72), false),
             new float[] {13f, 4.24264f, 13f},
             new float[] {11.5f, 4.24264f, 11.5f},
             new float[] {11.5f, 0f, 11.5f},
             new float[] {13f, 0f, 13f}
         );
-        Renderer.textureQuad(gl2, 
+        MapToolGUI.textureQuad(gl2, 
             AWTTextureIO.newTexture(glprofile, images.getImage("image (18)"), false),
             new float[] {13f, 2.8f, 10.6f},
             new float[] {10f, 2.8f, 10.6f},
@@ -242,7 +238,7 @@ public class Renderer {
             new float[] {13f, 0.6f, 12.6f}
         ); 
 
-        Renderer.textureQuad(gl2, 
+        MapToolGUI.textureQuad(gl2, 
             AWTTextureIO.newTexture(glprofile, images.getImage("image (22)"), false),
             new float[] {12.8f, 3.5f, 10.6f},
             new float[] {10.2f, 3.5f, 10.6f},
@@ -251,131 +247,41 @@ public class Renderer {
         ); 
     }
 
-    public static void renderPlayer(GL2 gl2){
-
-        int imageNumIDK = 0;
-
-        
-        if(Player.getyDir() < 0){
-            imageNumIDK += 2;
-        }
-        if(Player.getxDir() > 0){
-            imageNumIDK += 1;
-        }
-
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, playerIdle[imageNumIDK].getTextureObject());
-
-
-        if(Player.getState() == Player.PlayerState.DASHING){
-            dashAnimations[imageNumIDK].setStartTime(Player.getLastDash());
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
-        }
-        
-        if(Player.getState() == Player.PlayerState.ATTACKING){
-
-        }
-        
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-
-        // Render player
-        TextureCoords texcoords = playerIdle[imageNumIDK].getImageTexCoords();
-        int mapheight = Map.currentMap().getHeight((int)(Player.getxPos() + 0.5), (int)(Player.getyPos() + 0.5)) + 
-                        Map.currentMap().getCliffHeight((int)(Player.getxPos() + 0.5), (int)(Player.getyPos() + 0.5));
-        gl2.glBegin(GL2.GL_QUADS);               
-        
-            gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex3f((float)Player.getxPos(),        1f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)),   (float)Player.getyPos() - 0.38f);
-            
-            
-            gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex3f((float)Player.getxPos() + 1f, 1f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)),   (float)Player.getyPos() - 0.38f); 
-
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)), (float)Player.getyPos());     
-            
-            
-            gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex3f((float)Player.getxPos(),        0f + mapheight + (float)(0.1 * (double)Math.cos(System.currentTimeMillis() / 350.0)), (float)Player.getyPos());   
-            
-            
-        gl2.glEnd();                            
-        gl2.glFlush();
-
-
-        gl2.glBindTexture(
-            GL2.GL_TEXTURE_2D, 
-            AWTTextureIO.newTexture(
-                glprofile, 
-                toGlass(
-                    Images.readSpriteSheetToBufferedImage(
-                        images.getImage("player1Idle"), 
-                        glprofile, 
-                        2, 
-                        2
-                    )[imageNumIDK]
-                ), 
-                false
-            ).getTextureObject()
-        );
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-
-        // Render player
-        gl2.glBegin(GL2.GL_QUADS);               
-        
-            gl2.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl2.glVertex3f((float)Player.getxPos(),        0f + mapheight,   (float)Player.getyPos() + 1f);
-            
-            
-            gl2.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl2.glVertex3f((float)Player.getxPos() + 1f, 0f + mapheight,   (float)Player.getyPos() + 1f); 
-
-
-            gl2.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl2.glVertex3f((float)Player.getxPos() + 1f, 0 + mapheight, (float)Player.getyPos());     
-            
-            
-            gl2.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl2.glVertex3f((float)Player.getxPos(),        0 + mapheight, (float)Player.getyPos());   
-            
-            
-        gl2.glEnd();                            
-        gl2.glFlush();
-        
-        if(Player.getState() == Player.PlayerState.BLOCKING){
-            blockAnimation.setStartTime(Player.getLastBlock());
-            Renderer.textureQuad(
-                gl2, AWTTextureIO.newTexture(glprofile, blockAnimation.getFrame(), false),
-                new float[]{(float)Player.getxPos(),        1f + mapheight,   (float)Player.getyPos() - 0.38f},
-                new float[]{(float)Player.getxPos() + 1f, 1f + mapheight,   (float)Player.getyPos() - 0.38f}, 
-                new float[]{(float)Player.getxPos() + 1f, 0f + mapheight, (float)Player.getyPos()},
-                new float[]{(float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos()}
-            );
-        }
-    }
+    
 
     public static void renderEnvironment(){
         
     }
-    public static void renderGroundLayer(GL2 gl, int layer){
+    public static void renderChunks(GL2 gl, int layer, int chunkX, int chunkY){
+        if(MapTool.wasMapEditied)
+        mapTextures[MapTool.currentChunkY][MapTool.currentChunkX] = MapToolGUI.getChunkTextures(Map.currentMap().getChunk(MapTool.currentChunkX, MapTool.currentChunkY));
         float sysTime = (float)( ((double) System.currentTimeMillis() - startTime) / 1000.0);
         
-        for(int y = 0; y < Map.currentMap().getHeightChunks(); y++){
-            for(int x = 0; x < Map.currentMap().getWidthChunks(); x ++){
+        for(int y = (int)MapTool.clamp(chunkY - 1, 0, Map.currentMap().getHeightChunks() - 1); y <= (int)MapTool.clamp(chunkY + 1, 0, Map.currentMap().getHeightChunks() - 1); y++){
+            for(int x = (int)MapTool.clamp(chunkX - 1, 0, Map.currentMap().getWidthChunks() - 1); x <= (int)MapTool.clamp(chunkX + 1, 0, Map.currentMap().getWidthChunks() - 1); x++){
         
                 /////////// RENDER GROUND /////////
                 
                 // Render ground layer for this level. If it's null then this layer is empty and we don't need to draw it
+                if(!(y == chunkY && x == chunkX)){
+
+                    gl.glColor4f(1f, 1f, 1f, 0.5f); // 50% opacity
+
+                } else {
+                    gl.glColor4f(1f, 1f, 1f, 1f); // 50% opacity
+                }
+
+
+
                 if(mapTextures[y][x][layer] != null){
-                    Renderer.textureQuad(gl, mapTextures[y][x][layer], 
+                    MapToolGUI.textureQuad(gl, mapTextures[y][x][layer], 
                         new float[] {10f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y}, 
                         new float[] {0.0f + 10f*(float)x, 0f + layer, 0.0f + 10f*(float)y},
                         new float[] {0.0f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}, 
                         new float[] {10f + 10f*(float)x, 0f + layer, 10f + 10f*(float)y}
                     );
                 } 
+                
                 /* WATER STUFF ======================================
                 float a = 10;
                 float b = 10;
@@ -387,7 +293,7 @@ public class Renderer {
                         ), 
                         noiseValue
                     );
-                Renderer.textureQuad(gl, texture, 
+                MapToolGUI.textureQuad(gl, texture, 
                     new float[] {1f + 1f*(float)a, -1f + layer + 0.3f * noiseValue,      1f*(float)b}, 
                     new float[] {     1f*(float)a, -1f + layer + 0.3f * noiseValue,      1f*(float)b},
                     new float[] {     1f*(float)a, -1f + layer + 0.3f * noiseValue, 1f + 1f*(float)b}, 
@@ -441,7 +347,7 @@ public class Renderer {
                                 endXoffset = 1;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_BL"), 
+                                MapToolGUI.textureQuad(gl, images.getTexture("grass_clifftop_BL"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -455,7 +361,7 @@ public class Renderer {
                                 endXoffset = 1;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_TR"), 
+                                MapToolGUI.textureQuad(gl, images.getTexture("grass_clifftop_TR"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -468,7 +374,7 @@ public class Renderer {
                                 endXoffset = 0;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_BR"), 
+                                MapToolGUI.textureQuad(gl, images.getTexture("grass_clifftop_BR"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -482,7 +388,7 @@ public class Renderer {
                                 endXoffset = 0;
                                 endYoffset = 1;
                                 if(layer == currentChunk.getHeightAt(x2, y2))
-                                Renderer.textureQuad(gl, images.getTexture("grass_clifftop_TL"), 
+                                MapToolGUI.textureQuad(gl, images.getTexture("grass_clifftop_TL"), 
                                     new float[] {1f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2}, 
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 0.0f + 1f*(float)y2},
                                     new float[] {0.0f + 1f*(float)x2, 0f + layer, 1f + 1f*(float)y2}, 
@@ -508,7 +414,7 @@ public class Renderer {
                                         cliffTextureCoords = cliffTexture.getImageTexCoords();
                                     }
                                     
-                                    Renderer.textureQuad(
+                                    MapToolGUI.textureQuad(
                                         gl, 
                                         cliffTexture, 
                                         new float[] {xTiles + endXoffset, layer + 1f, yTiles + endYoffset}, 
@@ -518,7 +424,7 @@ public class Renderer {
                                     );
 
                                     if(layer == currentChunk.getHeightAt(x2, y2)){
-                                        Renderer.textureQuad(
+                                        MapToolGUI.textureQuad(
                                             gl, 
                                             images.getTexture("cliffshadow (2)"), 
                                             new float[] {xTiles + endXoffset, layer + 1.2f, yTiles + endYoffset}, 
@@ -527,7 +433,7 @@ public class Renderer {
                                             new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
                                         );
                                         
-                                        Renderer.textureQuad(
+                                        MapToolGUI.textureQuad(
                                             gl, 
                                             images.getTexture("cliffshadow (2)"), 
                                             new float[] {xTiles + endXoffset, layer, yTiles + endYoffset + 1f}, 
@@ -536,7 +442,7 @@ public class Renderer {
                                             new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
                                         );
 
-                                    Renderer.textureQuad(
+                                    MapToolGUI.textureQuad(
                                         gl, 
                                         shadowSquare, 
                                         new float[] {xTiles + endXoffset + 0.2f, layer, yTiles + endYoffset + 1f}, 
@@ -549,9 +455,16 @@ public class Renderer {
 
                             }
                         }
+                        
                     }
                 }
-
+                
+                MapToolGUI.textureQuad(gl, images.getTexture("Square1"), 
+                new float[] {1f +   10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 0.0f + 10f*(float)MapTool.currentChunkY + MapTool.currentTileY}, 
+                new float[] {0.0f + 10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 0.0f + 10f*(float)MapTool.currentChunkY + MapTool.currentTileY},
+                new float[] {0.0f + 10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 1f +   10f*(float)MapTool.currentChunkY + MapTool.currentTileY}, 
+                new float[] {1f +   10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 1f +   10f*(float)MapTool.currentChunkY + MapTool.currentTileY}
+                );
             }
         }
     }

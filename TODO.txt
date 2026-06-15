@@ -19,4 +19,7 @@ TODO LIST
     - Larger map
         - Optimize by only rendering a single image for each chunk (done)
         - Mapmaker tool
+    - Map/Graphics
+        - Water, water reflections (done)
+        - Water loading from file
     - Method for drawing quads (done)

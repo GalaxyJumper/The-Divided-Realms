@@ -1,5 +1,3 @@
-import javax.swing.event.SwingPropertyChangeSupport;
-
 public class Chunk {
     String[][] tileData;
     String[][] cliffDirData;
@@ -75,5 +73,63 @@ public class Chunk {
     
     public int getYChunks(){
         return y;
+    }
+    
+    public void editTile(int tileX, int tileY, String newValue){
+        tileData[tileY][tileX] = newValue;
+    }
+    public void editHeight(int tileX, int tileY, int newValue){
+        heightData[tileY][tileX] += newValue;
+        heightData[tileY][tileX] = (int)MapTool.clamp(heightData[tileY][tileX], 0, Map.HEIGHT - 1);
+    }
+
+    public void editCliffDirection(int tileX, int tileY, String newValue){
+        cliffDirData[tileY][tileX] = newValue;
+    }
+    
+    public void editCliffHeight(int tileX, int tileY, int newValue){
+        cliffHeightData[tileY][tileX] += newValue;
+        
+        cliffHeightData[tileY][tileX] = (int)MapTool.clamp(cliffHeightData[tileY][tileX], 0, Map.HEIGHT - 1);
+    }
+    public String getTileDataAsString(){
+        String output = "{";
+        for(int y = 0; y < 10; y++){
+            for(int x = 0; x < 10; x++){
+                output += tileData[y][x];
+                if(x != 9){
+                    output += ",";
+                }
+            }
+            output += ";";
+        }
+        return output + "}";
+    }
+
+    public String getCliffDataAsString(){
+        String output = "{";
+        for(int y = 0; y < 10; y++){
+            for(int x = 0; x < 10; x++){
+                output += cliffHeightData[y][x] + "." + cliffDirData[y][x];
+                if(x != 9){
+                    output += ",";
+                }
+            }
+            output += ";";
+        }
+        return output + "}";
+    }
+    public String getHeightDataAsString(){
+        String output = "{";
+        for(int y = 0; y < 10; y++){
+            for(int x = 0; x < 10; x++){
+                output += heightData[y][x];
+                if(x != 9){
+                    output += ",";
+                }
+            }
+            output += ";";
+        }
+        return output + "}";
     }
 }
