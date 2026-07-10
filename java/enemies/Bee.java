@@ -1,3 +1,4 @@
+package enemies;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
@@ -5,6 +6,11 @@ import com.jogamp.math.geom.plane.AffineTransform;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
+
+import game.Player;
+import gui.Renderer;
+import game.GameLoop;
+import gui.Images;
 
 public class Bee extends Enemy{
     private double[] pathfindingTarget = new double[2];

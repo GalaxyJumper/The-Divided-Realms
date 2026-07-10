@@ -1,3 +1,14 @@
+package game;
+import java.util.ArrayList;
+
+import java.awt.event.MouseEvent;
+
+import game.Input;
+import game.Player;
+import gui.Renderer;
+import enemies.Enemy;
+import gui.Camera;
+
 public class GameLoop {
     private static boolean running = false;
     private static int framesLastSecond = 0;
@@ -5,8 +16,11 @@ public class GameLoop {
     private static long lastSecondTime = System.nanoTime();
     private static long now;
     public static Input input;
+    private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     public static void start () {
+        for(int i = 0; i < 8; i++){
 
+        }
         Thread thread = new Thread() {
 
             public void run (){
@@ -22,14 +36,13 @@ public class GameLoop {
                         lastSecondTime = now;
                         framesLastSecond = framesThisSecond;
                         framesThisSecond = 0;
-                        System.out.println(framesLastSecond);
+                        //System.out.println(framesLastSecond);
                     }
 
 
                     Camera.update(Player.getxPos(), Player.getyPos());
                     Renderer.renderGame();
                     Player.update(input);
-
                     framesThisSecond ++;
                 }
             }
@@ -46,6 +59,9 @@ public class GameLoop {
         //  if(point < mx + b and is within bounds){
         //      everything move by   
         //  }
+    }
+    public static void handleMouseClick(MouseEvent e){
+        Player.handleMouseClick(e);
     }
     public static double clamp(double val, double min, double max) {
         return Math.max(min, Math.min(max, val));

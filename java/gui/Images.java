@@ -1,3 +1,4 @@
+package gui;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,7 +13,7 @@ import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 public class Images {
     BufferedImage[] imageList;
     Texture[] textureList;
-    String[] imageNames;
+    public String[] imageNames;
 
     ArrayList<BufferedImage> tempImageList = new ArrayList<BufferedImage>();
     ArrayList<String> tempImageNames = new ArrayList<String>();

@@ -1,9 +1,15 @@
+package maptool;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
+
+import game.Player;
+import game.Input;
+import game.Map;
+import gui.Camera;
 
 public class MapTool {
     private static boolean running = false;
@@ -19,6 +25,7 @@ public class MapTool {
     public static String currentTileType = "grass";
     public static int lastKeyPress = (int)System.currentTimeMillis() - 500;
     public static boolean wasMapEditied = false;
+    private static boolean inTileSelectMenu = false;
     static Scanner sc = new Scanner(System.in);
     public static void start () {
 
@@ -37,12 +44,12 @@ public class MapTool {
                         lastSecondTime = now;
                         framesLastSecond = framesThisSecond;
                         framesThisSecond = 0;
-                        System.out.println(framesLastSecond);
+                        //System.out.println(framesLastSecond);
                     }
-                    updateEditingPositions();
                     Camera.update(currentChunkX * 10 + 5, currentChunkY * 10 + 5);
                     MapToolGUI.renderGame();
                     Player.update(input);
+                    updateEditingPositions();
 
                     framesThisSecond ++;
                 }
@@ -119,13 +126,24 @@ public class MapTool {
                 wasMapEditied = true;
             }
             if(input.getKey(KeyEvent.VK_ENTER)){
-                System.out.println("Tile type: ");
+                String newTile = "";
+                
+                System.out.println("TILE SELECTION: ");
+                for(int i = 1; i < MapToolGUI.tileImages.imageNames.length; i += 2){
+                    System.out.println("[" + (i - 1) + "]: " + MapToolGUI.tileImages.imageNames[i - 1] + "  [" + (i) + "]: " + MapToolGUI.tileImages.imageNames[i]);
+                }
                 while(!sc.hasNextLine()){
                     sc.nextLine();
                 }
-                String newTile = sc.nextLine();
-                currentTileType = newTile;
+                newTile = sc.nextLine();
+                try {
+                    currentTileType = MapToolGUI.tileImages.imageNames[Integer.parseInt(newTile)];
+                } 
+                catch (Exception e){
+                    currentTileType = "grass";
+                }
             }
+            inTileSelectMenu = false;
             if(input.getKey(KeyEvent.VK_S) && input.getKey(KeyEvent.VK_CONTROL)){
                 Map.currentMap().saveMap();
             }

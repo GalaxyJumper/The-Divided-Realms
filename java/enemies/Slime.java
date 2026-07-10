@@ -1,3 +1,4 @@
+package enemies;
 import java.awt.image.BufferedImage;
 
 import com.jogamp.opengl.GL;
@@ -6,6 +7,11 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+
+import game.Player;
+import gui.Renderer;
+import game.GameLoop;
+import gui.Images;
 
 public class Slime extends Enemy{
     private double[] pathfindingTarget = new double[2];
@@ -66,7 +72,7 @@ public class Slime extends Enemy{
 
     }
     public void draw(GL2 gl){
-        Renderer.textureQuad(
+        Renderer.textureQuad(   
             gl, spritesheet[Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 100 % 7], 
             new float[] {(float)xPos,        1f,   (float)yPos - 0.38f}, 
             new float[] {(float)xPos + 1f, 1f,   (float)yPos - 0.38f},

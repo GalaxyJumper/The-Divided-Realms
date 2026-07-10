@@ -1,6 +1,7 @@
+package game;
 import java.awt.event.*;
 
-public class Input implements KeyListener{
+public class Input implements KeyListener, MouseListener{
     private static boolean[] keys;
 
     public Input(){
@@ -26,8 +27,32 @@ public class Input implements KeyListener{
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
+    public void keyTyped(KeyEvent e) { 
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        GameLoop.handleMouseClick(e);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 
 }

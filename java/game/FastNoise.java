@@ -1,3 +1,5 @@
+package game;
+
 // FastNoise.java
 //
 // MIT License

@@ -18,8 +18,10 @@ TODO LIST
         - Images for this
     - Larger map
         - Optimize by only rendering a single image for each chunk (done)
-        - Mapmaker tool
+        - Mapmaker tool (done!!)
     - Map/Graphics
         - Water, water reflections (done)
         - Water loading from file
     - Method for drawing quads (done)
+
+    - FPS manager class

@@ -1,3 +1,4 @@
+package gui;
 import java.awt.image.BufferedImage;
 public class Animation {
     private int startTime; // Animation start time

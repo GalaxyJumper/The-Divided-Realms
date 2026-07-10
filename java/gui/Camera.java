@@ -1,3 +1,4 @@
+package gui;
 public class Camera {
     static double x = 6;
     static double y = 20;

@@ -1,3 +1,7 @@
+package game;
+
+import maptool.MapTool;
+
 public class Chunk {
     String[][] tileData;
     String[][] cliffDirData;

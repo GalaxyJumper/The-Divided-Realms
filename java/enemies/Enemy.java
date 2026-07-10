@@ -1,4 +1,8 @@
-abstract class Enemy {
+package enemies;
+import gui.Renderer;
+import gui.Images;
+
+public abstract class Enemy {
     protected double xPos;
     protected double yPos;
     protected double xVel;

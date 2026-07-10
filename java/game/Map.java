@@ -1,3 +1,4 @@
+package game;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,9 +10,9 @@ public class Map {
 
 
     Chunk[][] mapData;
-    int widthChunks;
+    public int widthChunks;
 
-    int heightChunks;
+    public int heightChunks;
 
     static int currentMapNum = 1;
     static Map[] maps = new Map[]{
@@ -210,10 +211,10 @@ public class Map {
     }
     public void saveMap(){
         System.out.println("Saving map... please wait");
-        File outputCliffsFile = new File("MAPTOOL_OUTPUT/cliffs.map");
-        File outputHeightFile = new File("MAPTOOL_OUTPUT/height.map");
-        File outputEnvFile = new File("MAPTOOL_OUTPUT/env.map");
-        File outputTileFile = new File("MAPTOOL_OUTPUT/tiles.map");
+        File outputCliffsFile = new File("maps/cliffs.map");
+        File outputHeightFile = new File("maps/height.map");
+        File outputEnvFile = new File("maps/env.map");
+        File outputTileFile = new File("maps/tiles.map");
         FileWriter fwc;
         FileWriter fwh;
         FileWriter fwe;

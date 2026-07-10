@@ -1,4 +1,12 @@
+package game;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.glu.GLU;
+
+import gui.Camera;
+import gui.Renderer;
 
 public class Player {
     public enum PlayerState {
@@ -100,12 +108,25 @@ public class Player {
         if((int)System.currentTimeMillis() - lastDash < 400){
             playerState = PlayerState.DASHING;
         }
+        
         else if((int)System.currentTimeMillis() - lastBlock < 400){
             playerState = PlayerState.BLOCKING;
         } 
         else {
             playerState = PlayerState.IDLE;
         }
+    }
+    
+    public static void handleMouseClick(MouseEvent e) {
+        double estimatedXOnScreen = (Renderer.getWidth() / 2.0) - (Camera.getX() - Player.getxPos()) * 55.0 + 20;
+        double estimatedYOnScreen = (Renderer.getHeight() / 2.0) - (Camera.getY() - Player.getyPos()) * 7.0*6.43 + 1230dss  ;
+        System.out.println("Estimated X: " + estimatedXOnScreen + ", Estimated Y: " + estimatedYOnScreen);
+        System.out.println("Mouse X: " + e.getX() + ", Mouse Y: " + e.getY());
+        double magnitude = GameLoop.dist(estimatedXOnScreen, estimatedYOnScreen, e.getX(), e.getY());
+        double xAdd = (e.getX() - estimatedXOnScreen) / magnitude * 0.05;
+        double yAdd = (e.getY() - estimatedYOnScreen) / magnitude * 0.05;
+        xVel += xAdd;
+        yVel += yAdd;
     }
     public static PlayerState getState(){
         return playerState;
