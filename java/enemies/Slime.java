@@ -23,18 +23,13 @@ public class Slime extends Enemy{
 
     private int aggroTime = 5000;
 
-    private Texture[] spritesheet = Images.readSpriteSheet(images.getImage("slime"), GLProfile.getDefault(), 2, 4);
-    private Texture[] shadowSheet = new Texture[spritesheet.length];
+    private Texture[] spritesheet;
+    private Texture[] shadowSheet;
 
     private int animationTimeOffset = (int)(Math.random() * 1500.0);
 
     public Slime(double x, double y){
         super(x, y);
-        for(int i = 0; i < shadowSheet.length; i++){
-            shadowSheet[i] = Renderer.toGlassTexture(
-                Images.readSpriteSheetToBufferedImage(images.getImage("slime"), GLProfile.getDefault(), 2, 4)[i]
-            );
-        }
     }
 
     @Override
@@ -45,12 +40,16 @@ public class Slime extends Enemy{
         xPos += xVel; 
         yPos += yVel;
 
+        yVel *= 0.95;
+        xVel *= 0.95;
+
+        hitbox = new double[]{xPos, yPos, 1, 1};
 
         double distanceToTarget = GameLoop.dist(xPos, yPos, pathfindingTarget[0], pathfindingTarget[1]);
-
+        distanceToTarget = Math.min(2, distanceToTarget);
         // Set velocity as a vector pointing in the direction of the target
-        yVel = 0.07 * (pathfindingTarget[1] - yPos) / distanceToTarget;
-        xVel = 0.07 * (pathfindingTarget[0] - xPos) / distanceToTarget;
+        yVel += 0.001 * (pathfindingTarget[1] - yPos) * distanceToTarget;
+        xVel += 0.001 * (pathfindingTarget[0] - xPos) * distanceToTarget;
 
         int currentFrame = (int)Math.floor(Math.abs(now + animationTimeOffset) / 100 % 7);
 
@@ -69,7 +68,20 @@ public class Slime extends Enemy{
                 pathfindingTarget[1] = yPos + Math.random() * 10 - 5;
             }
         }
-
+        if(this.health <= 0){ // die
+            GameLoop.getEnemies().remove(this);
+        }
+    }
+    public void loadTextures(GLProfile glprofile){
+        
+        images = new Images("img/enemies", GLProfile.getDefault());
+        spritesheet = Images.readSpriteSheet(images.getImage("slime"), glprofile, 2, 4);
+        shadowSheet = new Texture[spritesheet.length];
+        for(int i = 0; i < shadowSheet.length; i++){
+            shadowSheet[i] = Renderer.toGlassTexture(
+                Images.readSpriteSheetToBufferedImage(images.getImage("slime"), glprofile, 2, 4)[i]
+            );
+        }
     }
     public void draw(GL2 gl){
         Renderer.textureQuad(   

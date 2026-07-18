@@ -24,18 +24,13 @@ public class Bee extends Enemy{
     private int lastAggro = (int) System.currentTimeMillis() - 10000;
     private int aggroTime = 5000;
 
-    Images enemyImages = new Images("img/enemies", Renderer.getGLProfile());
-    private Texture[] spritesheet = Images.readSpriteSheet(images.getImage("bee"), GLProfile.getDefault(), 8, 3);
-    private Texture[] shadowSheet = new Texture[spritesheet.length];
+    Images enemyImages;
+    private Texture[] spritesheet;
+    private Texture[] shadowSheet;
     private int animationTimeOffset = (int)(Math.random() * 1500.0);
 
     public Bee(double x, double y){
         super(x, y);
-        for(int i = 0; i < shadowSheet.length; i++){
-            shadowSheet[i] = Renderer.toGlassTexture(
-                Images.readSpriteSheetToBufferedImage(images.getImage("bee"), GLProfile.getDefault(), 8, 3)[i]
-            );
-        }
     }
 
     @Override
@@ -45,6 +40,13 @@ public class Bee extends Enemy{
 
         xPos += xVel; 
         yPos += yVel;
+
+        yVel *= 0.95;
+        xVel *= 0.95;
+
+
+        hitbox = new double[]{xPos, yPos, 1, 1};
+
         if(now - lastDirectionUpdate > timeTilNextDirectionUpdate){
             xAccel = Math.random() * 0.002 - 0.001;
             
@@ -68,8 +70,8 @@ public class Bee extends Enemy{
             distanceToTarget = Math.max(0.5, distanceToTarget);
 
             // Set velocity as a vector pointing in the direction of the target
-            yVel = 0.09 * (pathfindingTarget[1] - yPos) / distanceToTarget;
-            xVel = 0.09 * (pathfindingTarget[0] - xPos) / distanceToTarget;
+            yVel += 0.006 * (pathfindingTarget[1] - yPos) / distanceToTarget;
+            xVel += 0.002 * (pathfindingTarget[0] - xPos) / distanceToTarget;
         }
         // Non aggroed: move around. 
         else {
@@ -80,7 +82,21 @@ public class Bee extends Enemy{
             
             yVel = GameLoop.clamp(yVel, -0.05, 0.05);
         }
+        if(this.health <= 0){ // die
+            GameLoop.getEnemies().remove(this);
+        }
 
+    }
+    public void loadTextures(GLProfile glprofile){
+        
+        images = new Images("img/enemies", GLProfile.getDefault());
+        spritesheet = Images.readSpriteSheet(images.getImage("bee"), glprofile, 8, 3);
+        shadowSheet = new Texture[spritesheet.length];
+        for(int i = 0; i < shadowSheet.length; i++){
+            shadowSheet[i] = Renderer.toGlassTexture(
+                Images.readSpriteSheetToBufferedImage(images.getImage("bee"), glprofile, 8, 3)[i]
+            );
+        }
     }
     public void draw(GL2 gl){
         double beeAngle = Math.atan2(yVel, xVel) + Math.PI / 2;

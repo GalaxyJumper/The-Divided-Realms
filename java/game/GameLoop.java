@@ -6,7 +6,9 @@ import java.awt.event.MouseEvent;
 import game.Input;
 import game.Player;
 import gui.Renderer;
+import enemies.Bee;
 import enemies.Enemy;
+import enemies.Slime;
 import gui.Camera;
 
 public class GameLoop {
@@ -16,17 +18,22 @@ public class GameLoop {
     private static long lastSecondTime = System.nanoTime();
     private static long now;
     public static Input input;
-    private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+    private static ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     public static void start () {
-        for(int i = 0; i < 8; i++){
-
-        }
         Thread thread = new Thread() {
 
             public void run (){
                 running = true;
                 input = new Input();
                 Renderer.init();
+                
+                for(int i = 0; i < 8; i++){
+                    enemies.add(new Slime(5 + Math.random() * 10, 5 + Math.random() * 10));
+                }
+                for(int i = 0; i < 10; i++){
+                    enemies.add(new Bee(5 + Math.random() * 10, 5 + Math.random() * 10));
+                }
+
                 //new Sounds();
                 //Sounds.playSound("Countryside");
                 while(running) {
@@ -41,6 +48,19 @@ public class GameLoop {
 
 
                     Camera.update(Player.getxPos(), Player.getyPos());
+                    for(int i = 0; i < enemies.size(); i++){
+                        if(rectangleCollide(enemies.get(i).getHitbox(), Player.getAttackHitbox())){
+                            double distanceToTarget = GameLoop.dist(enemies.get(i).getxPos(), enemies.get(i).getyPos(), Player.getxPos(), Player.getyPos());
+                            // print player attack hitbox and enemy hitbox
+                            if((int)System.currentTimeMillis() - Player.getLastAttack() < 20){
+                                enemies.get(i).applyDamage(20);
+                                enemies.get(i).applyVelocity(0.2 * (enemies.get(i).getxPos() - Player.getxPos()) / distanceToTarget, 0.2 * (enemies.get(i).getyPos() - Player.getyPos()) / distanceToTarget);
+                            }
+                            System.out.println("Hit! Enemy: " +  enemies.get(i).getClass().getSimpleName() + " Health: " + enemies.get(i).getHealth());
+                        }
+                        
+                        enemies.get(i).update();
+                    }
                     Renderer.renderGame();
                     Player.update(input);
                     framesThisSecond ++;
@@ -59,6 +79,15 @@ public class GameLoop {
         //  if(point < mx + b and is within bounds){
         //      everything move by   
         //  }
+    }
+    public static ArrayList<Enemy> getEnemies(){
+        return enemies;
+    }
+    public static boolean rectangleCollide(double[] a, double[] b) {
+        return a[0] < b[0] + b[2]
+            && a[0] + a[2] > b[0]
+            && a[1] < b[1] + b[3]
+            && a[1] + a[3] > b[1];
     }
     public static void handleMouseClick(MouseEvent e){
         Player.handleMouseClick(e);

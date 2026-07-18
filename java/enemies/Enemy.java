@@ -1,5 +1,9 @@
 package enemies;
 import gui.Renderer;
+
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLProfile;
+
 import gui.Images;
 
 public abstract class Enemy {
@@ -12,7 +16,9 @@ public abstract class Enemy {
 
     protected double health;
 
-    protected Images images = new Images("img/enemies", Renderer.getGLProfile());
+    protected Images images;
+
+    protected double[] hitbox = new double[]{xPos, yPos, 1, 1};
 
     public Enemy(double x, double y){
         xPos = x;
@@ -22,9 +28,14 @@ public abstract class Enemy {
         health = 100;
     }
     public abstract void update();
-
+    public abstract void draw(GL2 gl2);
+    public abstract void loadTextures(GLProfile glprofile);
     public void applyDamage(int amount){
-        this.health += amount;
+        this.health -= amount;
+    }
+    public void applyVelocity(double x, double y){
+        this.xVel += x;
+        this.yVel += y;
     }
 
     public double getxPos() {
@@ -35,6 +46,9 @@ public abstract class Enemy {
     }
     public double getHealth(){
         return health;
+    }
+    public double[] getHitbox(){
+        return hitbox;
     }
 
 

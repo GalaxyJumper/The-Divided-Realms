@@ -23,7 +23,8 @@ public class Player {
     private static double yVel = 0;
     public static int lastDash = (int)System.currentTimeMillis() - 420;
     private static int lastBlock = (int)System.currentTimeMillis() - 420;
-
+    private static int lastAttack = (int)System.currentTimeMillis() - 420;
+    private static double[] attackHitbox = new double[]{0, 0, 0, 0};
     private static PlayerState playerState = PlayerState.IDLE;
 
     public static void update(Input input){
@@ -115,18 +116,27 @@ public class Player {
         else {
             playerState = PlayerState.IDLE;
         }
+        
     }
     
     public static void handleMouseClick(MouseEvent e) {
         double estimatedXOnScreen = (Renderer.getWidth() / 2.0) - (Camera.getX() - Player.getxPos()) * 55.0 + 20;
-        double estimatedYOnScreen = (Renderer.getHeight() / 2.0) - (Camera.getY() - Player.getyPos()) * 7.0*6.43 + 1230dss  ;
-        System.out.println("Estimated X: " + estimatedXOnScreen + ", Estimated Y: " + estimatedYOnScreen);
-        System.out.println("Mouse X: " + e.getX() + ", Mouse Y: " + e.getY());
+        double estimatedYOnScreen = (Renderer.getHeight() / 2.0) - (Camera.getY() - Player.getyPos()) * 7.0*6.43 + 1230;
+
+
         double magnitude = GameLoop.dist(estimatedXOnScreen, estimatedYOnScreen, e.getX(), e.getY());
-        double xAdd = (e.getX() - estimatedXOnScreen) / magnitude * 0.05;
-        double yAdd = (e.getY() - estimatedYOnScreen) / magnitude * 0.05;
+        double xAdd = (e.getX() - estimatedXOnScreen) / magnitude * 0.02;
+        double yAdd = (e.getY() - estimatedYOnScreen) / magnitude * 0.02;
         xVel += xAdd;
         yVel += yAdd;
+
+        playerState = PlayerState.ATTACKING;
+        lastAttack = (int) System.currentTimeMillis();
+        attackHitbox = new double[]{GameLoop.clamp(Player.getxPos() + xAdd * 50, Player.getxPos() - 1, Player.getxPos() + 1) - 0.5, GameLoop.clamp(Player.getyPos() + yAdd * 50, Player.getyPos() - 1.5, Player.getyPos() + 1.0) - 0.75, 2, 2};
+        System.out.println("Attack hitbox: " + attackHitbox[0] + ", " + attackHitbox[1] + ", " + attackHitbox[2] + ", " + attackHitbox[3]);
+        System.out.println("Player position: " + Player.getxPos() + ", " + Player.getyPos());
+        System.out.println("------------------");
+        
     }
     public static PlayerState getState(){
         return playerState;
@@ -157,6 +167,11 @@ public class Player {
     public static int getLastBlock() {
         return lastBlock;
     }
-    
+    public static int getLastAttack() {
+        return lastAttack;
+    }
+    public static double[] getAttackHitbox() {
+        return attackHitbox;
+    }
     
 }

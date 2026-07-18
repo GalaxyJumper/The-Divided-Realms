@@ -42,19 +42,15 @@ import java.nio.FloatBuffer;
 public class Renderer {
     
     static GLProfile glprofile = GLProfile.getDefault();
+    static GLCapabilities glcapabilities = new GLCapabilities(glprofile);
+    static final GLCanvas glcanvas = new GLCanvas(glcapabilities);
 
     static Images images;
-
-    static Bee[] boi;
-
-    static Slime[] bois;
 
     static FastNoise noise = new FastNoise(5);
 
     static double startTime = (double)System.currentTimeMillis();
 
-    static GLCapabilities glcapabilities = new GLCapabilities( glprofile );
-    static final GLCanvas glcanvas = new GLCanvas( glcapabilities );
     static final Frame frame = new Frame( "Divided Realms Re-attempt" );
 
     static Texture bgTexture= null;
@@ -108,10 +104,9 @@ public class Renderer {
         // coordinate system origin at lower left with width and height same as the window
         GLU glu = new GLU();
         images = new Images("img", glprofile);
-
-        boi = new Bee[5];
-        bois = new Slime[5];
-
+        for(int i = 0; i < GameLoop.getEnemies().size(); i++){
+            GameLoop.getEnemies().get(i).loadTextures(glprofile);
+        }
         // Enable all them textures
         gl2.glEnable(GL2.GL_TEXTURE_2D);
         gl2.glEnable(GL2.GL_BLEND);
@@ -156,16 +151,6 @@ public class Renderer {
         };
         blockAnimation = new Animation(images.getImage("blockSheet"), 4, 4, 16, 25, false);
 
-        //TODO: move this to game loop
-        for(int i = 0; i < boi.length; i++){
-            boi[i] = new Bee(6 + Math.random() * 9, 6 + Math.random() *9);
-        }
-        
-        //TODO: move this to game loop
-        for(int i = 0; i < bois.length; i++){
-            bois[i] = new Slime(6 + Math.random() * 10, 6 + Math.random() *5);
-        }
-
 
     }
 
@@ -209,13 +194,8 @@ public class Renderer {
 
 
 
-        for(int i = 0; i < boi.length; i++){
-            boi[i].draw(gl2);
-            boi[i].update();
-        }
-        for(int i = 0; i < bois.length; i++){
-            bois[i].draw(gl2);
-            bois[i].update();
+        for(int i = 0; i < GameLoop.getEnemies().size(); i++){
+            GameLoop.getEnemies().get(i).draw(gl2);
         }
 
         renderPlayer(gl2);
@@ -256,6 +236,14 @@ public class Renderer {
             new float[] {10.2f, 1.3f, 12.2f},
             new float[] {12.8f, 1.3f, 12.2f}
         ); 
+        double[] hitbox = Player.getAttackHitbox();
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("Square1"), false),
+            new float[] {(float)hitbox[0], 0.01f, (float)hitbox[1]},
+            new float[] {(float)(hitbox[0] + hitbox[2]), 0.01f, (float)hitbox[1]},
+            new float[] {(float)(hitbox[0] + hitbox[2]), 0.01f, (float)(hitbox[1] + hitbox[3])},
+            new float[] {(float)hitbox[0], 0.01f, (float)(hitbox[1] + hitbox[3])}
+        );
     }
 
     public static void renderPlayer(GL2 gl2){
@@ -748,7 +736,10 @@ public class Renderer {
         return frame.getHeight();
     }
     
-    public static GLProfile getGLProfile(){
+    public static GLProfile getGLProfile() {
+        if (glprofile == null) {
+            glprofile = GLProfile.getDefault();
+        }
         return glprofile;
     }
 }
