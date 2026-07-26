@@ -40,7 +40,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 public class Renderer {
-    
+    final static float SQRT_2 = (float)Math.sqrt(2);
     static GLProfile glprofile = GLProfile.getDefault();
     static GLCapabilities glcapabilities = new GLCapabilities(glprofile);
     static final GLCanvas glcanvas = new GLCanvas(glcapabilities);
@@ -244,6 +244,31 @@ public class Renderer {
             new float[] {(float)(hitbox[0] + hitbox[2]), 0.01f, (float)(hitbox[1] + hitbox[3])},
             new float[] {(float)hitbox[0], 0.01f, (float)(hitbox[1] + hitbox[3])}
         );
+
+        gl2.glLoadIdentity();                
+        
+        // Immediate rendering on purpose; I don't feel a need to create a method specifically for 2d quads :p
+        gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+
+        gl2.glBegin(GL2.GL_QUADS);               
+        
+            gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
+            gl2.glVertex3f(1f, (float)((float)height/(float)width), -2f);
+            
+            
+            gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
+            gl2.glVertex3f(-1f, (float)((float)height/(float)width), -2f); 
+
+
+            gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
+            gl2.glVertex3f(-1f, -(float)((float)height/(float)width), -2f);     
+            
+            gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
+            gl2.glVertex3f(1f, -(float)((float)height/(float)width), -2f);   
+        gl2.glEnd();                            
+        gl2.glFlush();
     }
 
     public static void renderPlayer(GL2 gl2){
