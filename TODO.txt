@@ -25,3 +25,9 @@ TODO LIST
     - Method for drawing quads (done)
 
     - FPS manager class
+
+    - Events structure(big one!)
+        - GameEvent class
+        - Event handling in Game
+        - All events are accessible through GameLoop
+        - Each event has a duration (amount of time it's active for) and foo and bar data

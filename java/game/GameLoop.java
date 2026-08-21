@@ -18,7 +18,9 @@ public class GameLoop {
     private static long lastSecondTime = System.nanoTime();
     private static long now;
     public static Input input;
+    private static double lastFrameTimes[] = new double[] {System.nanoTime(), System.nanoTime(), System.nanoTime()};
     private static ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+    public static double deltaTime = 1;
     public static void start () {
         Thread thread = new Thread() {
 
@@ -43,7 +45,7 @@ public class GameLoop {
                         lastSecondTime = now;
                         framesLastSecond = framesThisSecond;
                         framesThisSecond = 0;
-                        //System.out.println(framesLastSecond);
+                        System.out.println(framesLastSecond);
                     }
 
 
@@ -52,11 +54,17 @@ public class GameLoop {
                         if(rectangleCollide(enemies.get(i).getHitbox(), Player.getAttackHitbox())){
                             double distanceToTarget = GameLoop.dist(enemies.get(i).getxPos(), enemies.get(i).getyPos(), Player.getxPos(), Player.getyPos());
                             // print player attack hitbox and enemy hitbox
-                            if((int)System.currentTimeMillis() - Player.getLastAttack() < 20){
+                            if((int)System.currentTimeMillis() - Player.getLastAttack() < 80 && (int)System.currentTimeMillis() - Player.getLastAttack() > 60){
                                 enemies.get(i).applyDamage(20);
-                                enemies.get(i).applyVelocity(0.2 * (enemies.get(i).getxPos() - Player.getxPos()) / distanceToTarget, 0.2 * (enemies.get(i).getyPos() - Player.getyPos()) / distanceToTarget);
+                                enemies.get(i).applyVelocity(
+                                    (0.2 * (enemies.get(i).getxPos() - Player.getxPos()) / distanceToTarget) + Player.getxVel() * 0.4,
+                                    (0.2 * (enemies.get(i).getyPos() - Player.getyPos()) / distanceToTarget) + Player.getyVel() * 0.4
+                                );
                             }
-                            System.out.println("Hit! Enemy: " +  enemies.get(i).getClass().getSimpleName() + " Health: " + enemies.get(i).getHealth());
+                            if((int)System.currentTimeMillis() - Player.getLastSpecialAttack() < 80 && (int)System.currentTimeMillis() - Player.getLastSpecialAttack() > 60){
+                                enemies.get(i).applyDamage(40);
+                                enemies.get(i).applyVelocity((0.2 * (enemies.get(i).getxPos() - Player.getxPos()) / distanceToTarget) + Player.getxVel() * 1.0, (0.2 * (enemies.get(i).getyPos() - Player.getyPos()) / distanceToTarget) + Player.getyVel() * 1.0);
+                            }
                         }
                         
                         enemies.get(i).update();
@@ -64,6 +72,9 @@ public class GameLoop {
                     Renderer.renderGame();
                     Player.update(input);
                     framesThisSecond ++;
+                    lastFrameTimes[1] = lastFrameTimes[0];
+                    lastFrameTimes[0] = System.nanoTime();
+                    deltaTime = (lastFrameTimes[0] - lastFrameTimes[1]) / 16666667.0;
                 }
             }
         };

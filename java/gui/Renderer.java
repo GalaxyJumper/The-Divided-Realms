@@ -57,9 +57,12 @@ public class Renderer {
     static Texture[][][] mapTextures = null; 
     static Texture[] playerIdle = null;
     static Texture shadowSquare = null;
+
     static Animation[] dashAnimations;
     static Animation blockAnimation;
-    
+    static Animation attackAnimation;
+    static Animation spAttackAnimation;
+
     public static void init(){
         glcanvas.addGLEventListener( new GLEventListener() {
             
@@ -150,6 +153,8 @@ public class Renderer {
             new Animation(images.getImage("playerQuickDash").getSubimage(0, 72, 96, 24), 4, 1, 4, 100, false)
         };
         blockAnimation = new Animation(images.getImage("blockSheet"), 4, 4, 16, 25, false);
+        attackAnimation = new Animation(images.getImage("slash"), 1, 4, 4, 60, false);
+        spAttackAnimation = new Animation(images.getImage("slash2"), 2, 3, 6, 83, false);
 
 
     }
@@ -199,6 +204,15 @@ public class Renderer {
         }
 
         renderPlayer(gl2);
+
+        Renderer.textureQuad(gl2, 
+            images.getTexture("sdf"),
+            new float[] {14.0f, 0f, 16.5f}, //br
+            new float[] {10.5f, 0f, 16.5f}, //bl
+            new float[] {9.8f, 0f, 10.8f}, //tl
+            new float[] {13.25f, 0f, 11f} // tr
+        );
+
         Renderer.textureQuad(gl2, 
             AWTTextureIO.newTexture(glprofile, images.getImage("image (13)").getSubimage(0, 0, 36, 72), false),
             new float[] {11.5f, 4.24264f, 11.5f},
@@ -245,30 +259,39 @@ public class Renderer {
             new float[] {(float)hitbox[0], 0.01f, (float)(hitbox[1] + hitbox[3])}
         );
 
-        gl2.glLoadIdentity();                
-        
-        // Immediate rendering on purpose; I don't feel a need to create a method specifically for 2d quads :p
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+        draw2DQuad(gl2, -1.22, 0.5, 0.2, 0.2);
+    }
+    public static void draw2DQuad(GL2 gl, double x, double y, double width, double height) {
+        gl.glLoadIdentity();
 
-        gl2.glBegin(GL2.GL_QUADS);               
-        
-            gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
-            gl2.glVertex3f(1f, (float)((float)height/(float)width), -2f);
-            
-            
-            gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
-            gl2.glVertex3f(-1f, (float)((float)height/(float)width), -2f); 
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
+        TextureCoords texcoords = bgTexture.getImageTexCoords();
 
-            gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
-            gl2.glVertex3f(-1f, -(float)((float)height/(float)width), -2f);     
-            
-            gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
-            gl2.glVertex3f(1f, -(float)((float)height/(float)width), -2f);   
-        gl2.glEnd();                            
-        gl2.glFlush();
+        float left = (float)x;
+        float right = (float)(x + width);
+        float bottom = (float)y;
+        float top = (float)(y + height);
+        float z = -2f;
+
+        gl.glBegin(GL2.GL_QUADS);
+
+            gl.glTexCoord2f(texcoords.right(), texcoords.top());
+            gl.glVertex3f(right, top, z);
+
+            gl.glTexCoord2f(texcoords.left(), texcoords.top());
+            gl.glVertex3f(left, top, z);
+
+            gl.glTexCoord2f(texcoords.left(), texcoords.bottom());
+            gl.glVertex3f(left, bottom, z);
+
+            gl.glTexCoord2f(texcoords.right(), texcoords.bottom());
+            gl.glVertex3f(right, bottom, z);
+
+        gl.glEnd();
+        gl.glFlush();
     }
 
     public static void renderPlayer(GL2 gl2){
@@ -290,10 +313,9 @@ public class Renderer {
         if(Player.getState() == Player.PlayerState.DASHING){
             dashAnimations[imageNumIDK].setStartTime(Player.getLastDash());
             gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
-        }
-        
-        if(Player.getState() == Player.PlayerState.ATTACKING){
-
+        }        
+        if((int)System.currentTimeMillis() - Player.getLastAttack() < 300){
+            gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(101), false).getTextureObject());
         }
         
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
@@ -373,6 +395,66 @@ public class Renderer {
                 new float[]{(float)Player.getxPos() + 1f, 1f + mapheight,   (float)Player.getyPos() - 0.38f}, 
                 new float[]{(float)Player.getxPos() + 1f, 0f + mapheight, (float)Player.getyPos()},
                 new float[]{(float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos()}
+            );
+        }
+        if(Player.getState() == Player.PlayerState.ATTACKING){
+            double[] hitboxCenter = new double[]{
+                Player.getAttackHitbox()[0] + (Player.getAttackHitbox()[2] / 2.0),
+                Player.getAttackHitbox()[1] + (Player.getAttackHitbox()[3] / 2.0)
+            };
+            double[] playerCenter = new double[]{
+                Player.getxPos() + 0.5,
+                Player.getyPos() + 0.5
+            };
+            double magnitude = Math.sqrt(
+                Math.pow(( hitboxCenter[0] - playerCenter[0]),2)  +  Math.pow((hitboxCenter[1] - playerCenter[1]),2)
+            );
+            double[] playerToAttackHitboxVector = new double[] {
+                (hitboxCenter[0] - playerCenter[0]) / magnitude,
+                (hitboxCenter[1] - playerCenter[1]) / magnitude
+            }; 
+            double[] normalToTheRight = new double[] {
+                -playerToAttackHitboxVector[1],
+                playerToAttackHitboxVector[0]
+            };
+            double[] normalToTheLeft = new double[] {
+                playerToAttackHitboxVector[1],
+                -playerToAttackHitboxVector[0]
+            };
+            float[] tr = new float[]{
+                (float)(playerCenter[0] + playerToAttackHitboxVector[0] + playerToAttackHitboxVector[0] + normalToTheRight[0]),
+                (float)(playerCenter[1] + playerToAttackHitboxVector[1] + playerToAttackHitboxVector[0] + normalToTheRight[1])
+            };
+            float[] tl = new float[]{
+                (float)(playerCenter[0] + playerToAttackHitboxVector[0] + playerToAttackHitboxVector[0]  + normalToTheLeft[0]),
+                (float)(playerCenter[1] + playerToAttackHitboxVector[1] + playerToAttackHitboxVector[0]  + normalToTheLeft[1])
+            };
+            float [] br = new float[]{
+                (float)(playerCenter[0] + playerToAttackHitboxVector[0]  + normalToTheRight[0]),
+                (float)(playerCenter[1] + playerToAttackHitboxVector[0]  + normalToTheRight[1])
+            };
+            float [] bl = new float[]{
+                (float)(playerCenter[0] + playerToAttackHitboxVector[0]  + normalToTheLeft[0]),
+                (float)(playerCenter[1] + playerToAttackHitboxVector[0]  + normalToTheLeft[1])
+            };
+            attackAnimation.setStartTime(Player.getLastAttack());
+            Renderer.textureQuad(
+                //order for texture quad is tr, tl, bl, br
+                gl2, images.getTexture("Square1")/*AWTTextureIO.newTexture(glprofile, attackAnimation.getFrame(), false)*/,
+                new float[]{tr[0],        0.0f + mapheight,   tr[1]},
+                new float[]{tl[0], 0.0f + mapheight,   tl[1]}, 
+                new float[]{bl[0], 0.0f + mapheight, bl[1]},
+                new float[]{br[0],        0.0f + mapheight, br[1]}
+            );
+        }
+        if(Player.getState() == Player.PlayerState.SPECIAL_ATTACKING){
+            spAttackAnimation.setStartTime(Player.getLastSpecialAttack());
+            Renderer.textureQuad(
+                gl2, AWTTextureIO.newTexture(glprofile, spAttackAnimation.getFrame(), false),
+                new float[]{(float)Player.getxPos() - 1f,        1f + mapheight,   (float)Player.getyPos() - 0.5f},
+                new float[]{(float)Player.getxPos() + 2f, 1f + mapheight,   (float)Player.getyPos() - 0.5f}, 
+                new float[]{(float)Player.getxPos() +2f, 0f + mapheight, (float)Player.getyPos() +1.5f},
+                new float[]{(float)Player.getxPos() - 1f,        0f + mapheight, (float)Player.getyPos() + 1.5f}
             );
         }
     }
@@ -632,7 +714,7 @@ public class Renderer {
         glcanvas.display();
     }
 
-          public static Texture getTextureFromFile(File f) throws IOException{
+    public static Texture getTextureFromFile(File f) throws IOException{
         return AWTTextureIO.newTexture(f, true);
     }
     public static BufferedImage toGlass(BufferedImage image){
@@ -767,4 +849,5 @@ public class Renderer {
         }
         return glprofile;
     }
+    
 }

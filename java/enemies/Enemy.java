@@ -20,6 +20,8 @@ public abstract class Enemy {
 
     protected double[] hitbox = new double[]{xPos, yPos, 1, 1};
 
+    protected int lastHit = (int) System.currentTimeMillis() - 10000;
+
     public Enemy(double x, double y){
         xPos = x;
         yPos = y;
@@ -32,6 +34,7 @@ public abstract class Enemy {
     public abstract void loadTextures(GLProfile glprofile);
     public void applyDamage(int amount){
         this.health -= amount;
+        this.lastHit = (int) System.currentTimeMillis();
     }
     public void applyVelocity(double x, double y){
         this.xVel += x;

@@ -30,6 +30,9 @@ public class Animation {
     public void setStartTime(int time){
         startTime = time;
     }
+    public int getLengthMillis(){
+        return frameTime * numFrames;
+    }
     public BufferedImage getFrameNum(int num){
         int x = (num % widthFrames) * frameWidth;
         int y = (num / widthFrames) * frameHeight;
@@ -53,11 +56,10 @@ public class Animation {
         if(x > widthFrames * frameWidth || x < 0){
             x = 0;
         }
-        if(y > widthFrames * frameWidth || y < 0){
+        if(y > heightFrames * frameHeight || y < 0){
             y = 0;
         }
         //System.out.println("x: " + x + " y: " + y + " height: " + frameHeight + " width: " + frameWidth);
-        //System.out.println("Frame time: " + frameTime + " Start time: " + startTime);
         return sheet.getSubimage(x, y, frameWidth, frameHeight);
     }
         public BufferedImage getFrame(int customTime

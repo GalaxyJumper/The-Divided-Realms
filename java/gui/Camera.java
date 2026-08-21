@@ -1,4 +1,5 @@
 package gui;
+import game.GameLoop;
 public class Camera {
     static double x = 6;
     static double y = 20;
@@ -6,8 +7,10 @@ public class Camera {
     static double offsetY = 28;
 
     static public void update(double playerX, double playerY){
-        x += ((playerX + offsetX) - x) / 20;
-        y += ((playerY + offsetY) - y) / 20;
+        if(GameLoop.deltaTime < 20) {
+            x += (((playerX + offsetX) - x) / 20) * GameLoop.deltaTime;
+            y += (((playerY + offsetY) - y) / 20) * GameLoop.deltaTime;
+        }
     }
 
     public static double getX() {

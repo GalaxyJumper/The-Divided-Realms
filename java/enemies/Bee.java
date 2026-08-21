@@ -38,14 +38,13 @@ public class Bee extends Enemy{
 
         int now = (int) System.currentTimeMillis();
 
-        xPos += xVel; 
-        yPos += yVel;
+        xPos += xVel * GameLoop.deltaTime; 
+        yPos += yVel * GameLoop.deltaTime;
 
-        yVel *= 0.95;
-        xVel *= 0.95;
+        yVel *= 1 - (0.05 * GameLoop.deltaTime);
+        xVel *= 1 - (0.05 * GameLoop.deltaTime);
 
-
-        hitbox = new double[]{xPos, yPos, 1, 1};
+        hitbox = new double[]{xPos - 0.5, yPos - 0.5, 1, 1};
 
         if(now - lastDirectionUpdate > timeTilNextDirectionUpdate){
             xAccel = Math.random() * 0.002 - 0.001;
@@ -70,17 +69,26 @@ public class Bee extends Enemy{
             distanceToTarget = Math.max(0.5, distanceToTarget);
 
             // Set velocity as a vector pointing in the direction of the target
-            yVel += 0.006 * (pathfindingTarget[1] - yPos) / distanceToTarget;
-            xVel += 0.002 * (pathfindingTarget[0] - xPos) / distanceToTarget;
+            yVel += (0.006 * (pathfindingTarget[1] - yPos) / distanceToTarget) * GameLoop.deltaTime;
+            xVel += (0.004 * (pathfindingTarget[0] - xPos) / distanceToTarget) * GameLoop.deltaTime;
         }
         // Non aggroed: move around. 
         else {
-            yVel += yAccel;
-            xVel += xAccel;
+            yVel += yAccel * GameLoop.deltaTime;
+            xVel += xAccel * GameLoop.deltaTime;
 
             xVel = GameLoop.clamp(xVel, -0.05, 0.05);
             
             yVel = GameLoop.clamp(yVel, -0.05, 0.05);
+        }
+        for(int i = 0; i < GameLoop.getEnemies().size(); i++){
+            if(GameLoop.getEnemies().get(i) != this && GameLoop.getEnemies().get(i).getClass().getSimpleName().equals("Bee")){
+                if(GameLoop.dist(xPos, yPos, GameLoop.getEnemies().get(i).getxPos(), GameLoop.getEnemies().get(i).getyPos()) < 1){
+                    double distanceToOther = GameLoop.dist(xPos, yPos, GameLoop.getEnemies().get(i).getxPos(), GameLoop.getEnemies().get(i).getyPos());
+                    xVel += (0.002 * (xPos - GameLoop.getEnemies().get(i).getxPos()) / distanceToOther) * GameLoop.deltaTime;
+                    yVel += (0.002 * (yPos - GameLoop.getEnemies().get(i).getyPos()) / distanceToOther) * GameLoop.deltaTime;
+                }
+            }
         }
         if(this.health <= 0){ // die
             GameLoop.getEnemies().remove(this);
@@ -101,6 +109,13 @@ public class Bee extends Enemy{
     public void draw(GL2 gl){
         double beeAngle = Math.atan2(yVel, xVel) + Math.PI / 2;
         int beeDirection = 7 - ((int)Math.floor((beeAngle + Math.PI/8) / (Math.PI/4)) + 7) % 8;
+
+        if(lastHit + 300 > (int)System.currentTimeMillis()){
+            gl.glColor3f(1f, 0.0f, 0.0f);
+        } else {
+            gl.glColor3f(1f, 1f, 1f);
+        }
+
         Renderer.textureQuad(
             gl, spritesheet[beeDirection * 3 + (Math.abs((int)System.currentTimeMillis() + animationTimeOffset) / 30 % 3)], 
             new float[] {(float)xPos - 0.1f,        1.1f,   (float)yPos - 0.48f}, 
@@ -116,5 +131,7 @@ public class Bee extends Enemy{
             new float[] {(float)xPos + 1.1f, 0f, (float)yPos + 1f},
             new float[] {(float)xPos - 0.1f, 0f, (float)yPos + 1f}
         );
+        // reset tint back to normal
+        gl.glColor3f(1f, 1f, 1f);
     }
 }
