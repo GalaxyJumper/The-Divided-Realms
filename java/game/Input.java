@@ -1,5 +1,9 @@
 package game;
+import java.awt.Component;
 import java.awt.event.*;
+
+import gui.Renderer;
+import maptool.MapTool;
 
 public class Input implements KeyListener, MouseListener{
     private static boolean[] keys;
@@ -37,7 +41,18 @@ public class Input implements KeyListener, MouseListener{
 
     @Override
     public void mousePressed(MouseEvent e) {
-        GameLoop.handleMouseClick(e);
+        double mouseX = e.getX() * ((double)Renderer.getViewportSize()[2] / Renderer.getWidth());
+        double mouseY = e.getY() * ((double)Renderer.getViewportSize()[3] / Renderer.getHeight());
+        e = new MouseEvent((Component)e.getComponent(), e.getID(), e.getWhen(), e.getModifiers(), (int)mouseX, (int)mouseY, e.getClickCount(), e.isPopupTrigger());
+
+        System.out.println("Mouse pressed at: " + e.getX() + ", " + e.getY());
+        if(GameLoop.mapToolMode){
+            System.out.println("Mouse pressed at: " + e.getX() + ", " + e.getY());
+            MapTool.handleMouseClick(e);
+        }
+        else{
+            GameLoop.handleMouseClick(e);
+        }
     }
 
     @Override

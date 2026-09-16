@@ -1,0 +1,55 @@
+{
+    "items": [
+        {
+            "name": "Sliced slime",
+            "type": "ingredient",
+            "image": "slicedslime"
+        },
+        {
+            "name": "Slime jelly",
+            "type": "ingredient",
+            "image": "crushedslime"
+        },
+        {
+            "name": "Bee wings",
+            "type": "ingredient",
+            "image": "beewing"
+        },
+        {
+            "name": "Honey",
+            "type": "ingredient",
+            "image": "honey"
+        }, 
+        {
+            "name": "Slime sandwich",
+            "type": "dish",
+            "image": "slimesandwich",
+            "cookTime": "15000",
+            "events": [
+                "stir",
+                "flip"
+            ],
+            "eventTimes": [
+                "5000",
+                "12000"
+            ],
+            "ingredients": [
+                "Sliced slime",
+                "Slime jelly"
+            ]
+        },
+        {
+            "name": "Slimy toasted bee wings",
+            "type": "dish",
+            "image": "toastedbeewings",
+            "cookTime": "5000",
+            "ingredients": [
+                "Slime jelly",
+                "Bee wings",
+                "Bee wings",
+                "Honey"
+            ]
+        }
+
+    ]
+}

@@ -13,6 +13,9 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureCoords;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
+import cooking.CookingPot;
+import cooking.CookingSystem;
+import cooking.ItemData;
 import enemies.Bee;
 import enemies.Enemy;
 import enemies.Slime;
@@ -27,6 +30,7 @@ import gui.Images;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -44,6 +48,9 @@ public class Renderer {
     static GLProfile glprofile = GLProfile.getDefault();
     static GLCapabilities glcapabilities = new GLCapabilities(glprofile);
     static final GLCanvas glcanvas = new GLCanvas(glcapabilities);
+    private static GLU glu;
+
+    static double[] lastMeasurement = new double[]{1000, 100};
 
     static Images images;
 
@@ -63,7 +70,10 @@ public class Renderer {
     static Animation attackAnimation;
     static Animation spAttackAnimation;
 
+    static int[] viewportSize = new int[4];
+
     public static void init(){
+        glcanvas.setPreferredSize(new Dimension(1080, 720));
         glcanvas.addGLEventListener( new GLEventListener() {
             
             @Override
@@ -89,8 +99,7 @@ public class Renderer {
 
         
         frame.add( glcanvas );        
-
-        frame.setSize( 1080, 720 );
+        frame.pack();
         frame.setVisible( true );
         frame.addKeyListener(GameLoop.input);
         glcanvas.addMouseListener(GameLoop.input);
@@ -105,7 +114,7 @@ public class Renderer {
         //gl2.glMatrixMode( GL2.GL_PROJECTION );
 
         // coordinate system origin at lower left with width and height same as the window
-        GLU glu = new GLU();
+        glu = new GLU();
         images = new Images("img", glprofile);
         for(int i = 0; i < GameLoop.getEnemies().size(); i++){
             GameLoop.getEnemies().get(i).loadTextures(glprofile);
@@ -119,7 +128,6 @@ public class Renderer {
 
 		gl2.glViewport(0, 0, width, height);
 		gl2.glMatrixMode(GL2.GL_PROJECTION);
-
 		glu.gluPerspective(45.0f, (float)width / (float) height, 1.0, 400.0);
 		gl2.glMatrixMode(GL2.GL_MODELVIEW);
 		gl2.glLoadIdentity();
@@ -156,6 +164,8 @@ public class Renderer {
         attackAnimation = new Animation(images.getImage("slash"), 1, 4, 4, 60, false);
         spAttackAnimation = new Animation(images.getImage("slash2"), 2, 3, 6, 83, false);
 
+        // Get viewport size
+        gl2.glGetIntegerv(GL2.GL_VIEWPORT, viewportSize, 0);
 
     }
 
@@ -204,7 +214,7 @@ public class Renderer {
         }
 
         renderPlayer(gl2);
-
+        // Big tree --------------------------------
         Renderer.textureQuad(gl2, 
             images.getTexture("sdf"),
             new float[] {14.0f, 0f, 16.5f}, //br
@@ -250,50 +260,49 @@ public class Renderer {
             new float[] {10.2f, 1.3f, 12.2f},
             new float[] {12.8f, 1.3f, 12.2f}
         ); 
-        double[] hitbox = Player.getAttackHitbox();
-        Renderer.textureQuad(gl2, 
-            AWTTextureIO.newTexture(glprofile, images.getImage("Square1"), false),
-            new float[] {(float)hitbox[0], 0.01f, (float)hitbox[1]},
-            new float[] {(float)(hitbox[0] + hitbox[2]), 0.01f, (float)hitbox[1]},
-            new float[] {(float)(hitbox[0] + hitbox[2]), 0.01f, (float)(hitbox[1] + hitbox[3])},
-            new float[] {(float)hitbox[0], 0.01f, (float)(hitbox[1] + hitbox[3])}
-        );
+        // End tree --------------------------------
 
-        draw2DQuad(gl2, -1.22, 0.5, 0.2, 0.2);
+        renderCookingPot(gl2, CookingSystem.getCookingPot());
+
+
+        // double[] hitbox = Player.getAttackHitbox();
+        // Renderer.textureQuad(gl2, 
+        //     AWTTextureIO.newTexture(glprofile, images.getImage("Square1"), false),
+        //     new float[] {(float)hitbox[0], 0.01f, (float)hitbox[1]},
+        //     new float[] {(float)(hitbox[0] + hitbox[2]), 0.01f, (float)hitbox[1]},
+        //     new float[] {(float)(hitbox[0] + hitbox[2]), 0.01f, (float)(hitbox[1] + hitbox[3])},
+        //     new float[] {(float)hitbox[0], 0.01f, (float)(hitbox[1] + hitbox[3])}
+        // );
+
+        // Inventory UI
+
+        double slotSize = 100.0 * ((double)viewportSize[2] / 1080.0);
+        double barStartX = (viewportSize[2] / 2) - slotSize * 5;
+        for(int i = 0; i < 10; i++){
+            String imageName = (String) ItemData.getItemProperty(Player.getInventorySlot(i), "image");
+            if(imageName == null){
+                imageName = "Square1";
+            }
+            textureQuad2D(gl2, images.getTexture("Square"), barStartX + slotSize * i, viewportSize[3] - 50 - slotSize, slotSize, slotSize);
+            textureQuad2D(gl2, images.getTexture(imageName), (barStartX + 0.1 * slotSize) + (slotSize * i), viewportSize[3] - 50 - 0.9 * slotSize, 0.8 * slotSize, 0.8 * slotSize);
+        }
+
+        // for (int a = 0; a < 10; a++) {
+        //     for (int b = 0; b < 10; b++) {
+        //         double[] screen = Renderer.worldToScreen(a, 0, b, gl2);
+
+        //         textureQuad2D(
+        //             gl2,
+        //             images.getTexture("X"),
+        //             screen[0],
+        //             viewportSize[3] - screen[1],
+        //             40,
+        //             40
+        //         );
+        //     }
+        // }
     }
-    public static void draw2DQuad(GL2 gl, double x, double y, double width, double height) {
-        gl.glLoadIdentity();
-
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-
-        TextureCoords texcoords = bgTexture.getImageTexCoords();
-
-        float left = (float)x;
-        float right = (float)(x + width);
-        float bottom = (float)y;
-        float top = (float)(y + height);
-        float z = -2f;
-
-        gl.glBegin(GL2.GL_QUADS);
-
-            gl.glTexCoord2f(texcoords.right(), texcoords.top());
-            gl.glVertex3f(right, top, z);
-
-            gl.glTexCoord2f(texcoords.left(), texcoords.top());
-            gl.glVertex3f(left, top, z);
-
-            gl.glTexCoord2f(texcoords.left(), texcoords.bottom());
-            gl.glVertex3f(left, bottom, z);
-
-            gl.glTexCoord2f(texcoords.right(), texcoords.bottom());
-            gl.glVertex3f(right, bottom, z);
-
-        gl.glEnd();
-        gl.glFlush();
-    }
-
+    
     public static void renderPlayer(GL2 gl2){
 
         int imageNumIDK = 0;
@@ -309,15 +318,16 @@ public class Renderer {
 
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, playerIdle[imageNumIDK].getTextureObject());
 
-
+        // DASH ANIMATION
         if(Player.getState() == Player.PlayerState.DASHING){
             dashAnimations[imageNumIDK].setStartTime(Player.getLastDash());
             gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
         }        
-        if((int)System.currentTimeMillis() - Player.getLastAttack() < 300){
-            gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(101), false).getTextureObject());
+        // ATTACK ANIMATION
+        if((int)System.currentTimeMillis() - Player.getLastAttack() < 200){
+            gl2.glBindTexture(GL2.GL_TEXTURE_2D, AWTTextureIO.newTexture(glprofile, dashAnimations[imageNumIDK].getFrame(), false).getTextureObject());
         }
-        
+        // DRAW PLAYER QUAD
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
@@ -346,7 +356,7 @@ public class Renderer {
         gl2.glEnd();                            
         gl2.glFlush();
 
-
+        // Draw shadow
         gl2.glBindTexture(
             GL2.GL_TEXTURE_2D, 
             AWTTextureIO.newTexture(
@@ -362,6 +372,7 @@ public class Renderer {
                 false
             ).getTextureObject()
         );
+        // Draw shadow quad
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
 
@@ -386,7 +397,7 @@ public class Renderer {
             
         gl2.glEnd();                            
         gl2.glFlush();
-        
+        // Draw shield
         if(Player.getState() == Player.PlayerState.BLOCKING){
             blockAnimation.setStartTime(Player.getLastBlock());
             Renderer.textureQuad(
@@ -397,56 +408,60 @@ public class Renderer {
                 new float[]{(float)Player.getxPos(),        0f + mapheight, (float)Player.getyPos()}
             );
         }
-        if(Player.getState() == Player.PlayerState.ATTACKING){
+        // Determine regular attack hitbox and special attack hitbox
+        if(Player.getState() == Player.PlayerState.ATTACKING || Player.getLastAttack() + 200 > (int)System.currentTimeMillis()){
             double[] hitboxCenter = new double[]{
-                Player.getAttackHitbox()[0] + (Player.getAttackHitbox()[2] / 2.0),
-                Player.getAttackHitbox()[1] + (Player.getAttackHitbox()[3] / 2.0)
+                Player.getAttackHitbox()[0] + 1,
+                Player.getAttackHitbox()[1] + 1
             };
             double[] playerCenter = new double[]{
                 Player.getxPos() + 0.5,
                 Player.getyPos() + 0.5
             };
             double magnitude = Math.sqrt(
-                Math.pow(( hitboxCenter[0] - playerCenter[0]),2)  +  Math.pow((hitboxCenter[1] - playerCenter[1]),2)
+                Math.pow(( playerCenter[0] - hitboxCenter[0]),2)  +  Math.pow((playerCenter[1] - hitboxCenter[1]),2)
             );
             double[] playerToAttackHitboxVector = new double[] {
-                (hitboxCenter[0] - playerCenter[0]) / magnitude,
-                (hitboxCenter[1] - playerCenter[1]) / magnitude
+                (playerCenter[0] - hitboxCenter[0]) / magnitude,
+                (playerCenter[1] - hitboxCenter[1]) / magnitude
             }; 
             double[] normalToTheRight = new double[] {
-                -playerToAttackHitboxVector[1],
-                playerToAttackHitboxVector[0]
+                -playerToAttackHitboxVector[1] * 1.2,
+                playerToAttackHitboxVector[0] * 1.2
             };
             double[] normalToTheLeft = new double[] {
-                playerToAttackHitboxVector[1],
-                -playerToAttackHitboxVector[0]
+                playerToAttackHitboxVector[1] * 1.2,
+                -playerToAttackHitboxVector[0] * 1.2
             };
             float[] tr = new float[]{
-                (float)(playerCenter[0] + playerToAttackHitboxVector[0] + playerToAttackHitboxVector[0] + normalToTheRight[0]),
-                (float)(playerCenter[1] + playerToAttackHitboxVector[1] + playerToAttackHitboxVector[0] + normalToTheRight[1])
+                (float)(playerCenter[0]  - 1.7 * playerToAttackHitboxVector[0] + normalToTheRight[0]),
+                (float)(playerCenter[1]  - 1.7 * playerToAttackHitboxVector[1] + normalToTheRight[1] - 1)
             };
             float[] tl = new float[]{
-                (float)(playerCenter[0] + playerToAttackHitboxVector[0] + playerToAttackHitboxVector[0]  + normalToTheLeft[0]),
-                (float)(playerCenter[1] + playerToAttackHitboxVector[1] + playerToAttackHitboxVector[0]  + normalToTheLeft[1])
+                (float)(playerCenter[0]  - 1.7 * playerToAttackHitboxVector[0]  + normalToTheLeft[0]),
+                (float)(playerCenter[1]  - 1.7 * playerToAttackHitboxVector[1]  + normalToTheLeft[1] - 1)
             };
             float [] br = new float[]{
-                (float)(playerCenter[0] + playerToAttackHitboxVector[0]  + normalToTheRight[0]),
-                (float)(playerCenter[1] + playerToAttackHitboxVector[0]  + normalToTheRight[1])
+                (float)(playerCenter[0] - 0.3 * playerToAttackHitboxVector[0] + normalToTheRight[0]),
+                (float)(playerCenter[1]   - 0.3 * playerToAttackHitboxVector[1] + normalToTheRight[1] - 1)
             };
+            
             float [] bl = new float[]{
-                (float)(playerCenter[0] + playerToAttackHitboxVector[0]  + normalToTheLeft[0]),
-                (float)(playerCenter[1] + playerToAttackHitboxVector[0]  + normalToTheLeft[1])
+                (float)(playerCenter[0]  - 0.3 * playerToAttackHitboxVector[0] + normalToTheLeft[0]),
+                (float)(playerCenter[1]  - 0.3 * playerToAttackHitboxVector[1] + normalToTheLeft[1] - 1)
             };
             attackAnimation.setStartTime(Player.getLastAttack());
+            // Draw attack slash animation
             Renderer.textureQuad(
                 //order for texture quad is tr, tl, bl, br
-                gl2, images.getTexture("Square1")/*AWTTextureIO.newTexture(glprofile, attackAnimation.getFrame(), false)*/,
+                gl2, AWTTextureIO.newTexture(glprofile, attackAnimation.getFrame(), false),
                 new float[]{tr[0],        0.0f + mapheight,   tr[1]},
                 new float[]{tl[0], 0.0f + mapheight,   tl[1]}, 
                 new float[]{bl[0], 0.0f + mapheight, bl[1]},
                 new float[]{br[0],        0.0f + mapheight, br[1]}
             );
         }
+        // Draw special attack animation
         if(Player.getState() == Player.PlayerState.SPECIAL_ATTACKING){
             spAttackAnimation.setStartTime(Player.getLastSpecialAttack());
             Renderer.textureQuad(
@@ -456,6 +471,108 @@ public class Renderer {
                 new float[]{(float)Player.getxPos() +2f, 0f + mapheight, (float)Player.getyPos() +1.5f},
                 new float[]{(float)Player.getxPos() - 1f,        0f + mapheight, (float)Player.getyPos() + 1.5f}
             );
+        }
+    }
+
+    public static void renderUI(GL2 gl2){
+
+    }
+
+    public static void renderCookingPot(GL2 gl2, CookingPot pot){
+        float cookingPotX = pot.getXPos();
+        float cookingPotY = pot.getYPos();
+        Renderer.textureQuad(gl2, 
+            images.getTexture("potshadow"),
+            new float[] {23.75f, 0f, 14.2f}, //br
+            new float[] {20.25f, 0f, 14.2f}, //bl
+            new float[] {19.55f, 0f, 8.5f}, //tl
+            new float[] {23f, 0f, 8.7f} // tr
+        );
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("potbasebig").getSubimage(0, 0, 36, 72), false),
+            new float[] {21.5f, 4.24264f, 11.5f},
+            new float[] {20f, 4.24264f, 10f},
+            new float[] {20f, 0f, 10f},
+            new float[] {21.5f, 0f, 11.5f}
+        );
+
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("potbasebig"), false),
+            new float[] {23f, 4.24264f, 10f},
+            new float[] {20f, 4.24264f, 13f},
+            new float[] {20f, 0f, 13f},
+            new float[] {23f, 0f, 10f}
+        );        
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("potbasebig").getSubimage(36, 0, 36, 72), false),
+            new float[] {23f, 4.24264f, 13f},
+            new float[] {21.5f, 4.24264f, 11.5f},
+            new float[] {21.5f, 0f, 11.5f},
+            new float[] {23f, 0f, 13f}
+        );        
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("pottop"), false),
+            new float[] {22.25f, 1.70f, 10.8f},
+            new float[] {20.75f, 1.70f, 10.8f},
+            new float[] {20.75f, 0.55f, 12f},
+            new float[] {22.25f, 0.55f, 12f}
+        );        
+        Renderer.textureQuad(gl2, 
+            AWTTextureIO.newTexture(glprofile, images.getImage("pothole"), false),
+            new float[] {22.25f, 1.70f, 10.8f},
+            new float[] {20.75f, 1.70f, 10.8f},
+            new float[] {20.75f, 0.85f, 12f},
+            new float[] {22.25f, 0.85f, 12f}
+        );
+        for(int i = 0; i < pot.getIngredients().size(); i++){
+            float margin = (1f - ((18f/22f))) / 2f ;
+            Renderer.textureQuad(gl2, 
+                images.getTexture("cookingslotend"),
+                new float[] {cookingPotX - 1, 3 + GameLoop.ONE_OVER_SQRT2, cookingPotY - 0.5f - GameLoop.ONE_OVER_SQRT2},
+                new float[] {cookingPotX - 2, 3 + GameLoop.ONE_OVER_SQRT2, cookingPotY - 0.5f - GameLoop.ONE_OVER_SQRT2},
+                new float[] {cookingPotX - 2, 3                          , cookingPotY - 0.5f                          },
+                new float[] {cookingPotX - 1, 3                          , cookingPotY - 0.5f                          }
+            );
+            Renderer.textureQuad(gl2, 
+                images.getTexture("cookingslot"),
+                new float[] {cookingPotX - 1, 3 - GameLoop.ONE_OVER_SQRT2 * i      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * i},
+                new float[] {cookingPotX - 2, 3 - GameLoop.ONE_OVER_SQRT2 * i      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * i},
+                new float[] {cookingPotX - 2, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 1), cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 1)},
+                new float[] {cookingPotX - 1, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 1), cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 1)}
+            );
+            Renderer.textureQuad(gl2, 
+                AWTTextureIO.newTexture(glprofile, images.getImage((String)ItemData.getItemProperty(CookingSystem.getCookingPot().getIngredients().get(i), "image")), false),
+                new float[] {cookingPotX - 1 - margin, 3 - GameLoop.ONE_OVER_SQRT2 * (i + margin)      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + margin)},
+                new float[] {cookingPotX - 2 + margin, 3 - GameLoop.ONE_OVER_SQRT2 * (i + margin)      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + margin)},
+                new float[] {cookingPotX - 2 + margin, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 1 - margin), cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 1 - margin)},
+                new float[] {cookingPotX - 1 - margin, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 1 - margin), cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 1 - margin)}
+            );
+            if(i == CookingSystem.getCookingPot().getIngredients().size() - 1){
+                Renderer.textureQuad(gl2, 
+                    images.getTexture("cookingslotend"),
+                    new float[] {cookingPotX - 1, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 2)      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 2)},
+                    new float[] {cookingPotX - 2, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 2)      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 2)},
+                    new float[] {cookingPotX - 2, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 1)      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 1)},
+                    new float[] {cookingPotX - 1, 3 - GameLoop.ONE_OVER_SQRT2 * (i + 1)      , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (i + 1)}
+                );
+            }
+        }
+        if(pot.getState() == CookingPot.State.COOKING){
+                float cookingCompletion = 1f - (float)((int)System.currentTimeMillis() - pot.getCurrentDish().getTimeStarted()) / (float)pot.getCurrentDish().getCookTime();
+                Renderer.textureQuad(gl2, 
+                    images.getTexture("meadow"),
+                    new float[] {cookingPotX - 1, 3 - GameLoop.ONE_OVER_SQRT2 * (3) * cookingCompletion, cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (3) * cookingCompletion},
+                    new float[] {cookingPotX - 2, 3 - GameLoop.ONE_OVER_SQRT2 * (3) * cookingCompletion, cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * (3) * cookingCompletion},
+                    new float[] {cookingPotX - 2, 3 - GameLoop.ONE_OVER_SQRT2 * 3                , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * 3},
+                    new float[] {cookingPotX - 1, 3 - GameLoop.ONE_OVER_SQRT2 * 3                , cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * 3}
+                );
+                Renderer.textureQuad(gl2, 
+                    images.getTexture("Square"),
+                    new float[] {cookingPotX - 1, 3, cookingPotY - 0.5f},
+                    new float[] {cookingPotX - 2, 3, cookingPotY - 0.5f},
+                    new float[] {cookingPotX - 2, 3 - GameLoop.ONE_OVER_SQRT2 * 3, cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * 3},
+                    new float[] {cookingPotX - 1, 3 - GameLoop.ONE_OVER_SQRT2 * 3, cookingPotY - 0.5f + GameLoop.ONE_OVER_SQRT2 * 3}
+                );
         }
     }
 
@@ -639,14 +756,14 @@ public class Renderer {
                                             new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
                                         );
 
-                                    Renderer.textureQuad(
-                                        gl, 
-                                        shadowSquare, 
-                                        new float[] {xTiles + endXoffset + 0.2f, layer, yTiles + endYoffset + 1f}, 
-                                        new float[] { xTiles + startXoffset + 0.2f, layer, yTiles + startYoffset + 1f}, 
-                                        new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
-                                        new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
-                                    );
+                                        Renderer.textureQuad(
+                                            gl, 
+                                            shadowSquare, 
+                                            new float[] {xTiles + endXoffset + 0.2f, layer, yTiles + endYoffset + 1f}, 
+                                            new float[] { xTiles + startXoffset + 0.2f, layer, yTiles + startYoffset + 1f}, 
+                                            new float[] { xTiles + startXoffset, layer, yTiles + startYoffset}, 
+                                            new float[] { xTiles + endXoffset, layer, yTiles + endYoffset}
+                                        );
                                     }
                                 
 
@@ -681,6 +798,9 @@ public class Renderer {
 
         gl.glTranslatef(-(float) Camera.getX(),-20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
         gl.glRotatef(45f, 1.0f, 0f, 0f);
+
+        
+
         FloatBuffer vertices  = Buffers.newDirectFloatBuffer(
             new float[]{bl[0], bl[1], bl[2], // bottom left corner
                       tl[0],  tl[1], tl[2], // top left corner
@@ -713,6 +833,86 @@ public class Renderer {
     public static void renderGame(){
         glcanvas.display();
     }
+    public static double[] worldToScreen(double x, double y, double z, GL2 gl){
+             
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();   
+        gl.glTranslatef(-(float) Camera.getX(), -20f + (float)Camera.getY() * (float)Math.sin(Math.PI/4), -(float)Camera.getY() * (float)Math.cos(Math.PI/4) + 7f); 
+        gl.glRotatef(45f, 1.0f, 0f, 0f);
+        
+
+        double[] model = new double[16];
+        double[] proj = new double[16];
+        int[] viewport = new int[4];
+        double[] results = new double[3];
+        gl.glGetDoublev(GL2.GL_MODELVIEW_MATRIX, model, 0);
+        gl.glGetDoublev(GL2.GL_PROJECTION_MATRIX, proj, 0);
+        gl.glGetIntegerv(GL2.GL_VIEWPORT, viewport, 0);
+        glu.gluProject(
+            x, y, z,
+            model, 0,
+            proj, 0,
+            viewport, 0,
+            results, 0
+        );
+        gl.glPopMatrix();
+        return results;
+    }
+    public static void textureQuad2D(
+        GL2 gl,
+        Texture texture,
+        double x,
+        double y,
+        double width,
+        double height) {
+
+        int[] viewport = new int[4];
+        gl.glGetIntegerv(GL2.GL_VIEWPORT, viewport, 0);
+
+        gl.glMatrixMode(GL2.GL_PROJECTION);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        gl.glOrtho(
+            0,
+            viewport[2],
+            viewport[3],
+            0,
+            -1,
+            1
+        );
+
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureObject());
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+
+        gl.glColor4f(1f, 1f, 1f, 1f);
+
+        gl.glBegin(GL2.GL_QUADS);
+            gl.glTexCoord2f(0, 0);
+            gl.glVertex2d(x, y);
+
+            gl.glTexCoord2f(1, 0);
+            gl.glVertex2d(x + width, y);
+
+            gl.glTexCoord2f(1, 1);
+            gl.glVertex2d(x + width, y + height);
+
+            gl.glTexCoord2f(0, 1);
+            gl.glVertex2d(x, y + height);
+        gl.glEnd();
+
+        gl.glPopMatrix();
+
+        gl.glMatrixMode(GL2.GL_PROJECTION);
+        gl.glPopMatrix();
+
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+    }
 
     public static Texture getTextureFromFile(File f) throws IOException{
         return AWTTextureIO.newTexture(f, true);
@@ -737,7 +937,7 @@ public class Renderer {
         g.fillRect(0, 0, image.getWidth(), image.getHeight());
         return result;
     }
-        public static Texture toWater(BufferedImage image, float transparency){
+    public static Texture toWater(BufferedImage image, float transparency){
         transparency = (float)GameLoop.clamp(transparency*transparency, 0.0f, 0.7f);
         // Color of the final shadow (usually black)
         Color color = new Color(0, 0, 0);
@@ -842,7 +1042,9 @@ public class Renderer {
     public static int getHeight(){
         return frame.getHeight();
     }
-    
+    public static int[] getViewportSize(){
+        return viewportSize;
+    }
     public static GLProfile getGLProfile() {
         if (glprofile == null) {
             glprofile = GLProfile.getDefault();

@@ -1,5 +1,12 @@
 package game;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import com.jogamp.common.util.SourcedInterruptedException;
+
+import cooking.CookingSystem;
+import cooking.ItemData;
+import cooking.CookingPot;
 
 import java.awt.event.MouseEvent;
 
@@ -12,28 +19,39 @@ import enemies.Slime;
 import gui.Camera;
 
 public class GameLoop {
+    public static final float ONE_OVER_SQRT2 = (float)(1f / Math.sqrt(2));
     private static boolean running = false;
+    public static final boolean mapToolMode = false;
+    // Timing
     private static int framesLastSecond = 0;
     public static int framesThisSecond = 0;
     private static long lastSecondTime = System.nanoTime();
     private static long now;
+
     public static Input input;
+    
     private static double lastFrameTimes[] = new double[] {System.nanoTime(), System.nanoTime(), System.nanoTime()};
     private static ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+
     public static double deltaTime = 1;
     public static void start () {
         Thread thread = new Thread() {
 
             public void run (){
                 running = true;
+
+                new Sounds();
+
+                ItemData.readDataFromFile();
+                
                 input = new Input();
                 Renderer.init();
                 
-                for(int i = 0; i < 8; i++){
-                    enemies.add(new Slime(5 + Math.random() * 10, 5 + Math.random() * 10));
-                }
                 for(int i = 0; i < 10; i++){
-                    enemies.add(new Bee(5 + Math.random() * 10, 5 + Math.random() * 10));
+                    enemies.add(new Slime(5 + Math.random() * 20, 5 + Math.random() * 20));
+                }
+                for(int i = 0; i < 12; i++){
+                    enemies.add(new Bee(5 + Math.random() * 20, 5 + Math.random() * 20));
                 }
 
                 //new Sounds();
@@ -69,6 +87,21 @@ public class GameLoop {
                         
                         enemies.get(i).update();
                     }
+                    for(int i = 0; i < enemies.size(); i++){
+                        if(rectangleCollide(enemies.get(i).getHitbox(), Player.getHitbox())){
+                            double distanceToTarget = GameLoop.dist(enemies.get(i).getxPos(), enemies.get(i).getyPos(), Player.getxPos(), Player.getyPos());
+
+                            if((int)System.currentTimeMillis() - Player.getLastHit() > 700){
+                                Player.applyDamage(enemies.get(i).getDamage());
+                                System.out.println(Player.getHealth());
+                                Player.applyVelocity(
+                                    -(0.2 * (enemies.get(i).getxPos() - Player.getxPos()) / distanceToTarget) * 2,
+                                    -(0.2 * (enemies.get(i).getyPos() - Player.getyPos()) / distanceToTarget) * 2
+                                );
+                            }
+                        }
+                    }
+                    CookingSystem.update();
                     Renderer.renderGame();
                     Player.update(input);
                     framesThisSecond ++;

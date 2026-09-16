@@ -71,6 +71,15 @@ public class Images {
         }
         return null;
     }
+    public BufferedImage[] getImageList(){
+        return imageList;
+    }
+    public String[] getImageNames(){
+        return imageNames;
+    }
+    public int getNumImages(){
+        return imageList.length;
+    }
     public BufferedImage getImage(int id){
         return imageList[id];
     }

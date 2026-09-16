@@ -9,6 +9,7 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
 
 import game.Player;
+import game.Sounds;
 import gui.Renderer;
 import game.GameLoop;
 import gui.Images;
@@ -30,6 +31,8 @@ public class Slime extends Enemy{
 
     public Slime(double x, double y){
         super(x, y);
+        this.damage = 75;
+        this.maxHealth = 100;
     }
 
     @Override
@@ -78,8 +81,16 @@ public class Slime extends Enemy{
                 }
             }
         }
-        if(this.health <= 0){ // die
-
+        if(this.health <= 0){ // die   
+            // Regular attack: sliced slime
+            if((int)System.currentTimeMillis() - Player.getLastAttack() < 300){
+                Player.addToInventory("Sliced slime");
+            }
+            // Special attack: slime jelly
+            else if((int)System.currentTimeMillis() - Player.getLastSpecialAttack() < 300){
+                Player.addToInventory("Slime jelly");
+            }
+            Sounds.playSound("SlimeBejiggle");
             GameLoop.getEnemies().remove(this);
         }
     }

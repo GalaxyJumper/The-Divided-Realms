@@ -20,6 +20,8 @@ public class Bee extends Enemy{
     double xAccel = 0.001;
     double yAccel = 0.001;
 
+    
+
 
     private int lastAggro = (int) System.currentTimeMillis() - 10000;
     private int aggroTime = 5000;
@@ -31,6 +33,8 @@ public class Bee extends Enemy{
 
     public Bee(double x, double y){
         super(x, y);
+        this.damage = 60;
+        this.maxHealth = 200;
     }
 
     @Override
@@ -62,7 +66,7 @@ public class Bee extends Enemy{
         if(GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 5) lastAggro = now;
         
         // Aggroed: set target to the player and move in that direction.
-        if(now - lastAggro < aggroTime && GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 5){
+        if(now - lastAggro < aggroTime && GameLoop.dist(xPos, yPos, Player.getxPos(), Player.getyPos()) < 9){
             pathfindingTarget[0] = Player.getxPos();
             pathfindingTarget[1] = Player.getyPos();
             
@@ -91,6 +95,14 @@ public class Bee extends Enemy{
             }
         }
         if(this.health <= 0){ // die
+            // Regular attack: bee wings
+            if((int)System.currentTimeMillis() - Player.getLastAttack() < 300 && Math.random() < 0.5){
+                Player.addToInventory("Bee wings");
+            }
+            // Special attack: honey
+            if((int)System.currentTimeMillis() - Player.getLastSpecialAttack() < 300 && Math.random() < 0.5){
+                Player.addToInventory("Honey");
+            }
             GameLoop.getEnemies().remove(this);
         }
 

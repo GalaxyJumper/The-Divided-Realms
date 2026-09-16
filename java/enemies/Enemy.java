@@ -16,6 +16,8 @@ public abstract class Enemy {
 
     protected double health;
 
+    protected double damage;
+
     protected Images images;
 
     protected double[] hitbox = new double[]{xPos, yPos, 1, 1};
@@ -52,6 +54,9 @@ public abstract class Enemy {
     }
     public double[] getHitbox(){
         return hitbox;
+    }
+    public double getDamage(){
+        return damage;
     }
 
 

@@ -1,6 +1,7 @@
 package maptool;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,7 +26,6 @@ public class MapTool {
     public static String currentTileType = "grass";
     public static int lastKeyPress = (int)System.currentTimeMillis() - 500;
     public static boolean wasMapEditied = false;
-    private static boolean inTileSelectMenu = false;
     static Scanner sc = new Scanner(System.in);
     public static void start () {
 
@@ -70,7 +70,7 @@ public class MapTool {
     }
     public static void updateEditingPositions(){
         wasMapEditied = false;
-        if((int)System.currentTimeMillis() - lastKeyPress > 100){
+        if((int)System.currentTimeMillis() - lastKeyPress > 80){
             if(input.getKey(KeyEvent.VK_LEFT)){
                 currentChunkX -= 1;
             }
@@ -126,24 +126,8 @@ public class MapTool {
                 wasMapEditied = true;
             }
             if(input.getKey(KeyEvent.VK_ENTER)){
-                String newTile = "";
-                
-                System.out.println("TILE SELECTION: ");
-                for(int i = 1; i < MapToolGUI.tileImages.imageNames.length; i += 2){
-                    System.out.println("[" + (i - 1) + "]: " + MapToolGUI.tileImages.imageNames[i - 1] + "  [" + (i) + "]: " + MapToolGUI.tileImages.imageNames[i]);
-                }
-                while(!sc.hasNextLine()){
-                    sc.nextLine();
-                }
-                newTile = sc.nextLine();
-                try {
-                    currentTileType = MapToolGUI.tileImages.imageNames[Integer.parseInt(newTile)];
-                } 
-                catch (Exception e){
-                    currentTileType = "grass";
-                }
+                MapToolGUI.toggleTileMenu();
             }
-            inTileSelectMenu = false;
             if(input.getKey(KeyEvent.VK_S) && input.getKey(KeyEvent.VK_CONTROL)){
                 Map.currentMap().saveMap();
             }
@@ -154,7 +138,9 @@ public class MapTool {
         if(input.getKey(KeyEvent.VK_SPACE)){
             Map.currentMap().getChunk(currentChunkX, currentChunkY).editTile(currentTileX, currentTileY, currentTileType);
             wasMapEditied = true;
+            System.out.println("Edited tile at chunk (" + currentChunkX + ", " + currentChunkY + ") and tile (" + currentTileX + ", " + currentTileY + ") to type: " + currentTileType);
         }
+
         if(input.getKey(KeyEvent.VK_NUMPAD1)){
             Map.currentMap().getChunk(currentChunkX, currentChunkY).editCliffDirection(currentTileX, currentTileY, "sw");
             wasMapEditied = true;
@@ -187,12 +173,24 @@ public class MapTool {
         if(input.getKey(KeyEvent.VK_NUMPAD4)){
             Map.currentMap().getChunk(currentChunkX, currentChunkY).editCliffDirection(currentTileX, currentTileY, "w");
             wasMapEditied = true;
-            System.out.println("edited cliff direction to w");
         }
         
         if(input.getKey(KeyEvent.VK_NUMPAD5)){
             Map.currentMap().getChunk(currentChunkX, currentChunkY).editCliffDirection(currentTileX, currentTileY, "none");
             wasMapEditied = true;
+        }
+    }
+
+    public static void handleMouseClick(MouseEvent e){
+        if(e.getButton() == MouseEvent.BUTTON1 && MapToolGUI.tileMenuOpen){
+            int currentTileTypeNum = ((e.getX() - 100) / 80 + ((e.getY() - 100) / 80) * 11);
+            currentTileType = MapToolGUI.tileImages.getImageNames()[currentTileTypeNum];
+            System.out.println("Selected raw tile type: " + currentTileType);
+            if(e.getX() > 100 + 11 * 80 || e.getY() > 100 + 80 * Math.ceil(MapToolGUI.tileImages.getNumImages() / 11.0) || e.getX() < 100 || e.getY() < 100){
+                currentTileType = "grass";
+            }
+            System.out.println("Selected actual tile type: " + currentTileType);
+            MapToolGUI.toggleTileMenu();
         }
     }
     public static double clamp(double val, double min, double max) {

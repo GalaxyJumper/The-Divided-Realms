@@ -46,10 +46,6 @@ public class MapToolGUI {
 
     static Images tileImages;
 
-    static Bee[] boi;
-
-    static Slime[] bois;
-
     static FastNoise noise = new FastNoise(5);
 
     static double startTime = (double)System.currentTimeMillis();
@@ -65,8 +61,15 @@ public class MapToolGUI {
     static Texture[][][] mapTextures = null; 
     static Texture[] playerIdle = null;
     static Texture shadowSquare = null;
+    static Texture menuTexture = null;
     static Animation[] dashAnimations;
     static Animation blockAnimation;
+
+    static double width = 1080;
+    static double height = 720;
+
+    static boolean tileMenuOpen = false;
+
     public static void init(){
         glcanvas.addGLEventListener( new GLEventListener() {
             
@@ -94,12 +97,15 @@ public class MapToolGUI {
         
         frame.add( glcanvas );        
 
-        frame.setSize( 1080, 720 );
+        frame.setSize( (int)width, (int)height );
         frame.setVisible( true );
         frame.addKeyListener(MapTool.input);
+        glcanvas.addMouseListener(MapTool.input);
+        glcanvas.setFocusable(true);
         frame.setFocusable(true);
 
         frame.requestFocusInWindow();
+        glcanvas.requestFocusInWindow();
         System.out.println("[MapToolGUI] Completed init");
     }
 
@@ -108,19 +114,17 @@ public class MapToolGUI {
 
         // coordinate system origin at lower left with width and height same as the window
         glu = new GLU();
-        glu.gluOrtho2D( 0.0f, width, 0.0f, height );
+        //glu.gluOrtho2D( 0.0f, width, 0.0f, height );
 
         images = new Images("img", glprofile);
         tileImages = new Images("img/tiles", glprofile);
-
-        boi = new Bee[5];
-        bois = new Slime[5];
+        menuTexture = images.getTexture("Pathway to Eternity");
 
 
-        // glu.gluOrtho2D( 0.0f, width, 0.0f, height );
+        glu.gluOrtho2D( 0.0f, width, 0.0f, height );
 
-        // gl2.glMatrixMode( GL2.GL_MODELVIEW );
-        // gl2.glLoadIdentity();
+        gl2.glMatrixMode( GL2.GL_MODELVIEW );
+        gl2.glLoadIdentity();
 
         // Enable all them textures
         gl2.glEnable(GL2.GL_TEXTURE_2D);
@@ -171,24 +175,13 @@ public class MapToolGUI {
         };
         blockAnimation = new Animation(images.getImage("blockSheet"), 4, 4, 16, 25, false);
 
-        //TODO: move this to game loop
-        for(int i = 0; i < boi.length; i++){
-            boi[i] = new Bee(6 + Math.random() * 9, 6 + Math.random() *9);
-        }
-        
-        //TODO: move this to game loop
-        for(int i = 0; i < bois.length; i++){
-            bois[i] = new Slime(6 + Math.random() * 10, 6 + Math.random() *5);
-        }
-
 
     }
 
     protected static void render( GL2 gl2, int width, int height ) {
-        frame.requestFocusInWindow();
-
-        gl2.glLoadIdentity();                
+        frame.requestFocusInWindow();     
         
+        gl2.glLoadIdentity();
         // Immediate rendering on purpose; I don't feel a need to create a method specifically for 2d quads :p
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
         gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
@@ -199,19 +192,19 @@ public class MapToolGUI {
         gl2.glBegin(GL2.GL_QUADS);               
         
             gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
-            gl2.glVertex3f(20f, 11.25f, -30f);
+            gl2.glVertex3f(20f, 13.25f, -30f);
             
             
             gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
-            gl2.glVertex3f(-20f, 11.25f, -30f); 
+            gl2.glVertex3f(-20f, 13.25f, -30f); 
 
 
             gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
-            gl2.glVertex3f(-20f, -11.25f, -30f);     
+            gl2.glVertex3f(-20f, -13.25f, -30f);     
             
             
             gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
-            gl2.glVertex3f(20f, -11.25f, -30f);   
+            gl2.glVertex3f(20f, -13.25f, -30f);   
             
             
         gl2.glEnd();                            
@@ -221,14 +214,6 @@ public class MapToolGUI {
             renderChunks(gl2, h, MapTool.currentChunkX, MapTool.currentChunkY);
         }
 
-
-
-        for(int i = 0; i < boi.length; i++){
-            boi[i].draw(gl2);
-        }
-        for(int i = 0; i < bois.length; i++){
-            bois[i].draw(gl2);
-        }
         MapToolGUI.textureQuad(gl2, 
             AWTTextureIO.newTexture(glprofile, images.getImage("image (13)").getSubimage(0, 0, 36, 72), false),
             new float[] {11.5f, 4.24264f, 11.5f},
@@ -266,6 +251,9 @@ public class MapToolGUI {
             new float[] {10.2f, 1.3f, 12.2f},
             new float[] {12.8f, 1.3f, 12.2f}
         ); 
+        if(MapToolGUI.tileMenuOpen){
+            renderTileMenu(gl2, menuTexture);
+        }
     }
 
     
@@ -289,7 +277,7 @@ public class MapToolGUI {
                     gl.glColor4f(1f, 1f, 1f, 0.5f); // 50% opacity
 
                 } else {
-                    gl.glColor4f(1f, 1f, 1f, 1f); // 50% opacity
+                    gl.glColor4f(1f, 1f, 1f, 1f); // 100% opacity
                 }
 
 
@@ -488,7 +476,6 @@ public class MapToolGUI {
                 );
             }
         }
-        renderTileMenu(gl, bgTexture);
     }
     public static void renderEnemy(Enemy e, GL2 gl){
 
@@ -500,30 +487,44 @@ public class MapToolGUI {
                 
     }
     public static void renderTileMenu(GL2 gl, Texture texture){
-        
-		gl.glMatrixMode(GL2.GL_PROJECTION);
-        
-        glu.gluOrtho2D( 0.0f, 1080f, 0.0f, 720f );
-
-        float imgHeight = 200;
-        float imgWidth = 200;
-        System.out.println("edfgjisa");
+        // Setup for 2D rendering
+        gl.glPushMatrix();
+        gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, texture.getTextureObject());
-         gl.glBegin(GL2.GL_QUADS);
-            gl.glTexCoord2f(0, 0);
-            gl.glVertex2f(-imgWidth / 2, -imgHeight / 2);
+        gl.glOrtho(0, width, height, 0, -1, 1);
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glColor4f(1f, 1f, 1f, 1f); // reset color .-.
 
-            gl.glTexCoord2f(1, 0);
-            gl.glVertex2f(imgWidth / 2, -imgHeight / 2);
 
-            gl.glTexCoord2f(1, 1);
-            gl.glVertex2f(imgWidth / 2, imgHeight / 2);
+        float imgHeight = 80;
+        float imgWidth = 80;
+        double numColumns = 11;
+        for(int i = 0; i < tileImages.getNumImages(); i++){
+            double x = 100 + (i % numColumns) * imgWidth;
+            double y = 100 + Math.floor(i / numColumns) * imgHeight;
+            gl.glLoadIdentity();
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, tileImages.getTexture(tileImages.getImageNames()[i]).getTextureObject());
+            gl.glBegin(GL2.GL_QUADS);
+                gl.glTexCoord2f(0, 0);
+                gl.glVertex2d(x, y);
 
-            gl.glTexCoord2f(0, 1);
-            gl.glVertex2f(-imgWidth / 2, imgHeight / 2);
-        gl.glEnd();
-        gl.glFlush();
+                gl.glTexCoord2f(1, 0);
+                gl.glVertex2d(x + imgWidth, y);
+
+                gl.glTexCoord2f(1, 1);
+                gl.glVertex2d(x + imgWidth, y + imgHeight);
+
+                gl.glTexCoord2f(0, 1);
+                gl.glVertex2d(x, y + imgHeight);
+            gl.glEnd();
+            gl.glFlush();
+        }
+        
+        // Reset to 3D rendering
+        gl.glMatrixMode(GL2.GL_PROJECTION);
+        gl.glLoadIdentity();
+        gl.glPopMatrix();
+        glu.gluPerspective(45.0f, (float)width / (float) height, 1.0, 400.0);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
     }
     public static void textureQuad(GL2 gl, Texture texture, float[] tr, float[] tl, float[] bl, float[] br){
@@ -595,7 +596,8 @@ public class MapToolGUI {
         g.fillRect(0, 0, image.getWidth(), image.getHeight());
         return result;
     }
-        public static Texture toWater(BufferedImage image, float transparency){
+    
+    public static Texture toWater(BufferedImage image, float transparency){
         transparency = (float)GameLoop.clamp(transparency*transparency, 0.0f, 0.7f);
         // Color of the final shadow (usually black)
         Color color = new Color(0, 0, 0);
@@ -622,6 +624,7 @@ public class MapToolGUI {
 
         return AWTTextureIO.newTexture(glprofile, result, false);
     }
+
     public static Texture toGlassTexture(BufferedImage image){
         
         // Color of the final shadow (usually black)
@@ -692,6 +695,9 @@ public class MapToolGUI {
             if(isLayerEmpty[i]) textures[i] = null;
         }
         return textures;
+    }
+    public static void toggleTileMenu(){
+        tileMenuOpen = !tileMenuOpen;
     }
     public static GLProfile getGLProfile(){
         return glprofile;

@@ -211,10 +211,10 @@ public class Map {
     }
     public void saveMap(){
         System.out.println("Saving map... please wait");
-        File outputCliffsFile = new File("maps/cliffs.map");
-        File outputHeightFile = new File("maps/height.map");
-        File outputEnvFile = new File("maps/env.map");
-        File outputTileFile = new File("maps/tiles.map");
+        File outputCliffsFile = new File("maps/map1/cliffs.map");
+        File outputHeightFile = new File("maps/map1/height.map");
+        File outputEnvFile = new File("maps/map1/env.map");
+        File outputTileFile = new File("maps/map1/tiles.map");
         FileWriter fwc;
         FileWriter fwh;
         FileWriter fwe;

@@ -2,10 +2,12 @@ package game;
 import java.awt.MouseInfo;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 
+import cooking.CookingSystem;
 import gui.Camera;
 import gui.Renderer;
 
@@ -17,6 +19,7 @@ public class Player {
         ATTACKING,
         SPECIAL_ATTACKING
     }
+    // Physics
     private static double xPos = 7;
     private static double yPos = 8.5;
     private static int xDir = 0;
@@ -26,12 +29,21 @@ public class Player {
     private static double xAdd = 0;
     private static double yAdd = 0;
 
+    // Abilities/player state
     public static int lastDash = (int)System.currentTimeMillis() - 420;
     private static int lastBlock = (int)System.currentTimeMillis() - 420;
     private static int lastAttack = (int)System.currentTimeMillis() - 420;
     private static int lastSpecialAttack = (int)System.currentTimeMillis() - 420;
+    private static int lastHit = (int) System.currentTimeMillis() - 4200;
     private static double[] attackHitbox = new double[]{0, 0, 0, 0};
+    private static double[] hitbox = new double[] {0, 0, 0.8, 0.8};
     private static PlayerState playerState = PlayerState.IDLE;
+
+    private static double health = 500;
+
+    // Inventory
+    private static ArrayList<String> inventory = new ArrayList<String>();
+
 
     public static void update(Input input){
 
@@ -103,12 +115,21 @@ public class Player {
 
             //Sounds.playSound("Blocking");
         }
+        if(input.getKey(KeyEvent.VK_ENTER) && GameLoop.dist(Player.getxPos(), Player.getyPos(), CookingSystem.getCookingPot().getXPos(), CookingSystem.getCookingPot().getYPos()) < 3){
+            CookingSystem.getCookingPot().startCooking();
+
+            //Sounds.playSound("Blocking");
+        }
 
         xPos += xVel * GameLoop.deltaTime;
         yPos += yVel * GameLoop.deltaTime;
 
         xVel *= 1 - (0.15 * GameLoop.deltaTime);
         yVel *= 1 - (0.15 * GameLoop.deltaTime);
+
+        hitbox[0] = xPos + 0.1; 
+        hitbox[1] = yPos + 0.1;
+
 
         ///////// PLAYER STATES
         
@@ -132,20 +153,47 @@ public class Player {
         double estimatedYOnScreen = (Renderer.getHeight() / 2.0) - (Camera.getY() - Player.getyPos()) * 7.0*6.43 + 1230;
 
         double mouseX = MouseInfo.getPointerInfo().getLocation().getX();
-        double mouseY = MouseInfo.getPointerInfo().getLocation().getY() - 100;
+        double mouseY = MouseInfo.getPointerInfo().getLocation().getY();
 
         double magnitude = GameLoop.dist(estimatedXOnScreen, estimatedYOnScreen, mouseX, mouseY);
         xAdd = (mouseX - estimatedXOnScreen) / magnitude * 0.15;
         yAdd = (mouseY - estimatedYOnScreen) / magnitude * 0.15;
-        if(Player.getState()!= Player.PlayerState.SPECIAL_ATTACKING){
+        if(Player.getState() != Player.PlayerState.SPECIAL_ATTACKING){
             attackHitbox = new double[]{
                 GameLoop.clamp(Player.getxPos() + xAdd * 20, Player.getxPos() - 1, Player.getxPos() + 0.75) - 0.5, 
                 GameLoop.clamp(Player.getyPos() + yAdd * 20, Player.getyPos() - 1.5, Player.getyPos() + 0.75) - 0.75, 
                 2, 2};
         }
+        if(Player.getState() == Player.PlayerState.SPECIAL_ATTACKING){
+            // make the player spin
+            xDir = (int)Math.signum((int)System.currentTimeMillis() - lastSpecialAttack - 200);
+            yDir = (int)Math.signum((int)System.currentTimeMillis() - lastSpecialAttack - 100);
+        }
+        
+
     }
     
     public static void handleMouseClick(MouseEvent e) {
+
+        int[] viewportSize = Renderer.getViewportSize();
+        double slotSize = 100.0 * (double)viewportSize[2] / 1080.0;
+        double barStartX = viewportSize[2] / 2 - slotSize * 5;
+
+        if(e.getButton() == MouseEvent.BUTTON1
+        && e.getX() > barStartX 
+        && e.getX() < barStartX + slotSize * 10 
+        && e.getY() > viewportSize[3] - 50 - slotSize 
+        && e.getY() < viewportSize[3] - 50 
+        && GameLoop.dist(Player.getxPos(), Player.getyPos(), CookingSystem.getCookingPot().getXPos(), CookingSystem.getCookingPot().getYPos()) < 3
+        ){
+
+            int inventorySlot = (int)((e.getX() - barStartX) / slotSize);
+            CookingSystem.addIngredientToPot(Player.getInventorySlot(inventorySlot));
+            System.out.println(CookingSystem.getCookingPot().getIngredients().size());
+            inventory.remove(inventorySlot);
+
+            return;
+        }
         
         if(e.getButton() == MouseEvent.BUTTON1){
             xVel += xAdd * GameLoop.deltaTime;
@@ -202,8 +250,49 @@ public class Player {
     public static int getLastSpecialAttack() {
         return lastSpecialAttack;
     }
+
+    public static int getLastHit() {
+        return lastHit;
+    }
+
     public static double[] getAttackHitbox() {
         return attackHitbox;
+    }
+
+    public static double[] getHitbox() {
+        return hitbox;
+    }
+
+    public static void applyDamage(double amount){
+        health -= amount;
+        lastHit = (int) System.currentTimeMillis();
+    }
+
+    public static void applyVelocity(double xAmount, double yAmount){
+        xVel += xAmount;
+        yVel += yAmount;
+    }
+
+    public static double getHealth(){
+        return health;
+    }
+
+    public static ArrayList<String> getInventory() {
+        return inventory;
+    }
+    public static void addToInventory(String item) {
+        inventory.add(item);
+    }
+
+    public static void removeFromInventory(String item) {
+        inventory.remove(item);
+    }
+
+    public static String getInventorySlot(int index) {
+        if(index < 0 || index >= inventory.size()){
+            return null;
+        }
+        return inventory.get(index);
     }
     
 }
