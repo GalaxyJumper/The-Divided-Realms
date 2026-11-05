@@ -86,8 +86,8 @@ public class MapTool {
             if(input.getKey(KeyEvent.VK_DOWN)){
                 currentChunkY += 1;
             }
-            currentChunkX = (int)clamp(currentChunkX, 0, Map.currentMap().widthChunks);
-            currentChunkY = (int)clamp(currentChunkY, 0, Map.currentMap().heightChunks);
+            currentChunkX = (int)clamp(currentChunkX, 0, Map.currentMap().widthChunks - 1);
+            currentChunkY = (int)clamp(currentChunkY, 0, Map.currentMap().heightChunks - 1);
         
             if(input.getKey(KeyEvent.VK_A)){
                 currentTileX -= 1;

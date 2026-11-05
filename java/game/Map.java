@@ -28,7 +28,12 @@ public class Map {
     public void loadMap(String filePath){
         for(int x = 0; x < widthChunks; x++){
             for(int y = 0; y < heightChunks; y++){
-                mapData[y][x] = new Chunk(loadTileData(x, y, filePath + "/tiles.map"), loadCliffData(x, y, filePath + "/cliffs.map"), loadElevData(x, y, filePath + "/height.map"), x, y);
+                mapData[y][x] = 
+                    new Chunk(
+                        loadTileData(x, y, filePath + "/tiles.map"), 
+                        loadCliffData(x, y, filePath + "/cliffs.map"), 
+                        loadElevData(x, y, filePath + "/height.map"),
+                    x, y);
            }
         }
     }

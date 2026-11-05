@@ -1,8 +1,10 @@
 package game;
 import java.awt.MouseInfo;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
@@ -28,6 +30,8 @@ public class Player {
     private static double yVel = 0;
     private static double xAdd = 0;
     private static double yAdd = 0;
+    private static double xOnScreen = 0;
+    private static double yOnScreen = 0;
 
     // Abilities/player state
     public static int lastDash = (int)System.currentTimeMillis() - 420;
@@ -149,28 +153,39 @@ public class Player {
         else {
             playerState = PlayerState.IDLE;
         }
-        double estimatedXOnScreen = (Renderer.getWidth() / 2.0) - (Camera.getX() - Player.getxPos()) * 55.0 + 20;
-        double estimatedYOnScreen = (Renderer.getHeight() / 2.0) - (Camera.getY() - Player.getyPos()) * 7.0*6.43 + 1230;
+        
 
-        double mouseX = MouseInfo.getPointerInfo().getLocation().getX();
-        double mouseY = MouseInfo.getPointerInfo().getLocation().getY();
+        double mouseX = Input.getMouseX();
+        double mouseY = Input.getMouseY();
 
-        double magnitude = GameLoop.dist(estimatedXOnScreen, estimatedYOnScreen, mouseX, mouseY);
-        xAdd = (mouseX - estimatedXOnScreen) / magnitude * 0.15;
-        yAdd = (mouseY - estimatedYOnScreen) / magnitude * 0.15;
-        if(Player.getState() != Player.PlayerState.SPECIAL_ATTACKING){
+        double magnitude = GameLoop.dist(xOnScreen, yOnScreen, mouseX, mouseY);
+        xAdd = (mouseX - xOnScreen) / magnitude * 0.15;
+        yAdd = (mouseY - yOnScreen) / magnitude * 0.15;
+        // System.out.println(
+        //     "Mouse pos: " + mouseX + "," + mouseY + "\n"
+        //      + "Player pos: " + xOnScreen + ", " + yOnScreen + "\n"
+        //       + "Viewport info: " + Arrays.toString(Renderer.getViewportSize()) + "\n" 
+        //         + "Frame info: " + Renderer.getResolution().toString() + "\n");
+        
+        if(Player.getState() != PlayerState.SPECIAL_ATTACKING){
             attackHitbox = new double[]{
                 GameLoop.clamp(Player.getxPos() + xAdd * 20, Player.getxPos() - 1, Player.getxPos() + 0.75) - 0.5, 
                 GameLoop.clamp(Player.getyPos() + yAdd * 20, Player.getyPos() - 1.5, Player.getyPos() + 0.75) - 0.75, 
                 2, 2};
         }
-        if(Player.getState() == Player.PlayerState.SPECIAL_ATTACKING){
+        if(Player.getState() == PlayerState.SPECIAL_ATTACKING){
             // make the player spin
             xDir = (int)Math.signum((int)System.currentTimeMillis() - lastSpecialAttack - 200);
             yDir = (int)Math.signum((int)System.currentTimeMillis() - lastSpecialAttack - 100);
         }
         
 
+    }
+
+    public static void updateRequiringGL(GL2 gl){
+        double[] posOnScreen = Renderer.worldToScreen(xPos + 0.5, 0, yPos - 0.5, gl);
+        xOnScreen = posOnScreen[0];
+        yOnScreen = posOnScreen[1];
     }
     
     public static void handleMouseClick(MouseEvent e) {
@@ -213,6 +228,26 @@ public class Player {
                 4, 
                 4
             };
+        }
+    }
+    public static void handleKeyPress(KeyEvent e){
+
+        int[] viewportSize = Renderer.getViewportSize();
+        int slotSize = (int)(100.0 * (double)viewportSize[2] / 1080.0);
+        int barStartX = viewportSize[2] / 2 - slotSize * 5;
+
+        System.out.println("Key typed: " + e.getKeyCode() + ", " + Input.mouseInRect(new Rectangle(barStartX, viewportSize[3] - slotSize * 2, slotSize * 10, slotSize)));
+
+        if(e.getKeyCode() >= 49 && e.getKeyCode() <= 57 
+        && Input.mouseInRect(new Rectangle(barStartX, viewportSize[3] - slotSize * 2, slotSize * 10, slotSize))){
+
+            int slot = e.getKeyCode() - 49;
+            System.out.println("SLOT: slot");
+            
+            if(inventory.size() - 1 >= slot){
+                inventory.remove(slot);
+            }
+
         }
     }
     public static PlayerState getState(){

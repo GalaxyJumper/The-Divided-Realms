@@ -9,7 +9,7 @@
             "name": "Main",
             "request": "launch",
             "mainClass": "Main",
-            "projectName": "The-Divided-Realms_74bd3f64"
+            "projectName": "The-Divided-Realms_baaadea4"
         },
         {
             "type": "java",
@@ -17,40 +17,6 @@
             "request": "launch",
             "mainClass": "Main",
             "projectName": "The-Divided-Realms_3ed13817",
-            "args": [
-                "--add-exports java.base/java.lang=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.awt=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.java2d=ALL-UNNAMED",
-                "--illegal-access=permit"
-            ],
-            "vmArgs": "--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=permit"
-        },
-        {
-            "type": "java",
-            "name": "OneTriangleAWT",
-            "request": "launch",
-            "mainClass": "OneTriangleAWT",
-            "projectName": "The-Divided-Realms_3ed13817",
-            "args": [
-                "--add-exports java.base/java.lang=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.awt=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.java2d=ALL-UNNAMED",
-                "--illegal-access=permit"
-            ],
-            "vmArgs": "--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=permit"
-        },
-        {
-            "type": "java",
-            "name": "BasicFrame",
-            "request": "launch",
-            "mainClass": "BasicFrame",
-            "projectName": "The-Divided-Realms_3ed13817",
-            "args": [
-                "--add-exports java.base/java.lang=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.awt=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.java2d=ALL-UNNAMED",
-                "--illegal-access=permit"
-            ],
             "vmArgs": "--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=permit"
         },
         {
@@ -58,12 +24,6 @@
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}",
-            "args": [
-                "--add-exports java.base/java.lang=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.awt=ALL-UNNAMED",
-                "--add-exports java.desktop/sun.java2d=ALL-UNNAMED",
-                "--illegal-access=permit"
-            ],
             "vmArgs": "--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=permit"
         }
     ]

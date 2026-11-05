@@ -1,6 +1,8 @@
 package gui;
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.nativewindow.WindowClosingProtocol.WindowClosingMode;
 import com.jogamp.nativewindow.util.Point;
+import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -37,6 +39,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Transparency;
 import java.awt.desktop.SystemEventListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -49,8 +53,6 @@ public class Renderer {
     static GLCapabilities glcapabilities = new GLCapabilities(glprofile);
     static final GLCanvas glcanvas = new GLCanvas(glcapabilities);
     private static GLU glu;
-
-    static double[] lastMeasurement = new double[]{1000, 100};
 
     static Images images;
 
@@ -70,16 +72,20 @@ public class Renderer {
     static Animation attackAnimation;
     static Animation spAttackAnimation;
 
+    static boolean texturesLoadad = false;
+
     static int[] viewportSize = new int[4];
 
+    static final Dimension RESOLUTION = new Dimension(2160, 1440);
+
     public static void init(){
-        glcanvas.setPreferredSize(new Dimension(1080, 720));
+        glcanvas.setPreferredSize(RESOLUTION);
         glcanvas.addGLEventListener( new GLEventListener() {
             
             @Override
             public void reshape( GLAutoDrawable glautodrawable, int x, int y, int width, int height ) {
-                
-                Renderer.setup( glautodrawable.getGL().getGL2(), width, height );
+                Renderer.setup(glautodrawable.getGL().getGL2(), width, height);
+                if(!texturesLoadad) Renderer.loadTextures(width, height);
             }
             
             @Override
@@ -89,6 +95,7 @@ public class Renderer {
             
             @Override
             public void dispose( GLAutoDrawable glautodrawable ) {
+
             }
             
             @Override
@@ -102,8 +109,51 @@ public class Renderer {
         frame.pack();
         frame.setVisible( true );
         frame.addKeyListener(GameLoop.input);
+        frame.addWindowListener(new WindowListener() {
+            
+            @Override 
+            public void windowClosing(java.awt.event.WindowEvent e){
+                System.exit(0);
+            }
+
+            @Override
+            public void windowActivated(java.awt.event.WindowEvent e) {
+                // TODO Auto-generated method stub
+            }
+
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public void windowDeactivated(java.awt.event.WindowEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public void windowDeiconified(java.awt.event.WindowEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public void windowIconified(java.awt.event.WindowEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent e) {
+                // TODO Auto-generated method stub
+                
+            }
+        });
         glcanvas.addMouseListener(GameLoop.input);
         glcanvas.setFocusable(true);
+        glcanvas.setDefaultCloseOperation(WindowClosingMode.DISPOSE_ON_CLOSE);
         frame.setFocusable(true);
 
         glcanvas.requestFocusInWindow();
@@ -115,24 +165,34 @@ public class Renderer {
 
         // coordinate system origin at lower left with width and height same as the window
         glu = new GLU();
-        images = new Images("img", glprofile);
-        for(int i = 0; i < GameLoop.getEnemies().size(); i++){
-            GameLoop.getEnemies().get(i).loadTextures(glprofile);
-        }
         // Enable all them textures
         gl2.glEnable(GL2.GL_TEXTURE_2D);
         gl2.glEnable(GL2.GL_BLEND);
         // Set the blend function for transparency
         gl2.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+        
+        int side = (int)(width * (9.0 / 16.0));
 
+        gl2.glViewport(0, (height / 2) - (side / 2), width, side);
+        if(!texturesLoadad){
+            gl2.glMatrixMode(GL2.GL_PROJECTION);
+            glu.gluPerspective(45.0f, (float)width / (float) height, 1.0, 400.0);
+            gl2.glMatrixMode(GL2.GL_MODELVIEW);
+            gl2.glLoadIdentity();
 
-		gl2.glViewport(0, 0, width, height);
-		gl2.glMatrixMode(GL2.GL_PROJECTION);
-		glu.gluPerspective(45.0f, (float)width / (float) height, 1.0, 400.0);
-		gl2.glMatrixMode(GL2.GL_MODELVIEW);
-		gl2.glLoadIdentity();
+            gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
+        }
+    
+        // Get viewport size
+        gl2.glGetIntegerv(GL2.GL_VIEWPORT, viewportSize, 0);
 
-        gl2.setSwapInterval(1); // set to 0 to remove fps cap (turn off VSync)
+    }
+    protected static void loadTextures(int width, int height){
+        images = new Images("img", glprofile);
+        for(int i = 0; i < GameLoop.getEnemies().size(); i++){
+            GameLoop.getEnemies().get(i).loadTextures(glprofile);
+        }
+
         shadowSquare = AWTTextureIO.newTexture(glprofile, toGlass(images.getImage("grass")), false);
         try {
             playerIdle = Images.readSpriteSheet(images.getImage("player1Idle"), glprofile, 2, 2);
@@ -163,51 +223,19 @@ public class Renderer {
         blockAnimation = new Animation(images.getImage("blockSheet"), 4, 4, 16, 25, false);
         attackAnimation = new Animation(images.getImage("slash"), 1, 4, 4, 60, false);
         spAttackAnimation = new Animation(images.getImage("slash2"), 2, 3, 6, 83, false);
-
-        // Get viewport size
-        gl2.glGetIntegerv(GL2.GL_VIEWPORT, viewportSize, 0);
-
+        texturesLoadad = true;
     }
 
     protected static void render( GL2 gl2, int width, int height ) {
         
         frame.requestFocusInWindow();
 
-        gl2.glLoadIdentity();                
-        
-        // Immediate rendering on purpose; I don't feel a need to create a method specifically for 2d quads :p
-        gl2.glBindTexture(GL2.GL_TEXTURE_2D, bgTexture.getTextureObject());
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-        gl2.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+        textureQuad2D(gl2, bgTexture, 0, Renderer.getHeight(), Renderer.getWidth(), -Renderer.getHeight());
 
-        TextureCoords texcoords2 = bgTexture.getImageTexCoords();
-
-        gl2.glBegin(GL2.GL_QUADS);               
-        
-            gl2.glTexCoord2f(texcoords2.right(), texcoords2.top());
-            gl2.glVertex3f(20f, 11.25f, -30f);
-            
-            
-            gl2.glTexCoord2f(texcoords2.left(), texcoords2.top());
-            gl2.glVertex3f(-20f, 11.25f, -30f); 
-
-
-            gl2.glTexCoord2f(texcoords2.left(), texcoords2.bottom());
-            gl2.glVertex3f(-20f, -11.25f, -30f);     
-            
-            
-            gl2.glTexCoord2f(texcoords2.right(), texcoords2.bottom());
-            gl2.glVertex3f(20f, -11.25f, -30f);   
-            
-            
-        gl2.glEnd();                            
-        gl2.glFlush();
 
         for(int h = 0; h < Map.HEIGHT; h++){
             renderGroundLayer(gl2, h);
         }
-
-
 
         for(int i = 0; i < GameLoop.getEnemies().size(); i++){
             GameLoop.getEnemies().get(i).draw(gl2);
@@ -264,7 +292,6 @@ public class Renderer {
 
         renderCookingPot(gl2, CookingSystem.getCookingPot());
 
-
         // double[] hitbox = Player.getAttackHitbox();
         // Renderer.textureQuad(gl2, 
         //     AWTTextureIO.newTexture(glprofile, images.getImage("Square1"), false),
@@ -283,24 +310,34 @@ public class Renderer {
             if(imageName == null){
                 imageName = "Square1";
             }
-            textureQuad2D(gl2, images.getTexture("Square"), barStartX + slotSize * i, viewportSize[3] - 50 - slotSize, slotSize, slotSize);
-            textureQuad2D(gl2, images.getTexture(imageName), (barStartX + 0.1 * slotSize) + (slotSize * i), viewportSize[3] - 50 - 0.9 * slotSize, 0.8 * slotSize, 0.8 * slotSize);
+            textureQuad2D(gl2, images.getTexture("Square"), barStartX + slotSize * i, viewportSize[3] - slotSize * 2, slotSize, slotSize);
+            textureQuad2D(gl2, images.getTexture(imageName), (barStartX + 0.1 * slotSize) + (slotSize * i), viewportSize[3] - 1.8 * slotSize, 0.8 * slotSize, 0.8 * slotSize);
         }
+        
+        Renderer.textureQuad2D(gl2, images.getTexture("tentaclys"), viewportSize[2] - 220, 200, 220, 660);
+        String[][] toolSlots = CookingSystem.getToolSlots();
+        toolSlots[0][1] = "slimebeesoup";
+        toolSlots[0][2] = "honey";
+        toolSlots[0][3] = "toastedbeewings";
 
-        // for (int a = 0; a < 10; a++) {
-        //     for (int b = 0; b < 10; b++) {
-        //         double[] screen = Renderer.worldToScreen(a, 0, b, gl2);
+        
+        toolSlots[1][1] = "slimebeesoup";
+        toolSlots[1][2] = "honey";
+        toolSlots[1][3] = "beewing";
 
-        //         textureQuad2D(
-        //             gl2,
-        //             images.getTexture("X"),
-        //             screen[0],
-        //             viewportSize[3] - screen[1],
-        //             40,
-        //             40
-        //         );
-        //     }
-        // }
+        
+        toolSlots[2][1] = "slicedslime";
+        toolSlots[2][2] = "slimesandwich";
+        toolSlots[2][3] = "honey";
+
+        for(int i = 0; i < toolSlots.length; i++){
+            for(int k = 0; k < toolSlots[i].length; k++){
+                if(toolSlots[i][k] != null)
+                Renderer.textureQuad2D(gl2, images.getTexture(toolSlots[i][k]), viewportSize[2] - 220 + (int)(Math.sin(k + i) * 20), 240 + 220 * i + (int)(Math.cos(i + k) * 5), 80, 80);
+            }
+        }
+        CookingSystem.updateRequiringGL(gl2);
+        Player.updateRequiringGL(gl2);
     }
     
     public static void renderPlayer(GL2 gl2){
@@ -714,7 +751,7 @@ public class Renderer {
                             }
                             if(!noCliffs){
                                 int xTiles = currentChunk.getXChunks() * 10 + x2;
-                                int yTiles = currentChunk.getXChunks() * 10 + y2;
+                                int yTiles = currentChunk.getYChunks() * 10 + y2;
                                     Texture cliffTexture;
                                     TextureCoords cliffTextureCoords;
                                     // this isn't the top layer, so it doesn't need grass
@@ -857,6 +894,8 @@ public class Renderer {
             results, 0
         );
         gl.glPopMatrix();
+        // Result y= screen height - y         (invert result y)
+        results[1] = viewport[3] - results[1];
         return results;
     }
     public static void textureQuad2D(
@@ -1036,11 +1075,14 @@ public class Renderer {
         return textures;
     }
     public static int getWidth(){
-        return frame.getWidth();
+        return Renderer.getViewportSize()[2];
     }
     
     public static int getHeight(){
-        return frame.getHeight();
+        return Renderer.getViewportSize()[3];
+    }
+    public static Dimension getResolution(){
+        return new Dimension(frame.getWidth(), frame.getHeight());
     }
     public static int[] getViewportSize(){
         return viewportSize;

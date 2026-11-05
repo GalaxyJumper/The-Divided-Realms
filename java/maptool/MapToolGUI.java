@@ -409,7 +409,7 @@ public class MapToolGUI {
                             }
                             if(!noCliffs){
                                 int xTiles = currentChunk.getXChunks() * 10 + x2;
-                                int yTiles = currentChunk.getXChunks() * 10 + y2;
+                                int yTiles = currentChunk.getYChunks() * 10 + y2;
                                     Texture cliffTexture;
                                     TextureCoords cliffTextureCoords;
                                     // this isn't the top layer, so it doesn't need grass
@@ -467,12 +467,15 @@ public class MapToolGUI {
                         
                     }
                 }
-                
+                float xTiles = (10f * (float)MapTool.currentChunkX) + (float)MapTool.currentTileX;
+                float yTiles = (10f * (float)MapTool.currentChunkY) + (float)MapTool.currentTileY;
+                float elevation = currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY);
+
                 MapToolGUI.textureQuad(gl, images.getTexture("Square1"), 
-                new float[] {1f +   10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 0.0f + 10f*(float)MapTool.currentChunkY + MapTool.currentTileY}, 
-                new float[] {0.0f + 10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 0.0f + 10f*(float)MapTool.currentChunkY + MapTool.currentTileY},
-                new float[] {0.0f + 10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 1f +   10f*(float)MapTool.currentChunkY + MapTool.currentTileY}, 
-                new float[] {1f +   10f*(float)MapTool.currentChunkX + (float)MapTool.currentTileX, currentChunk.getHeightAt(MapTool.currentTileX, MapTool.currentTileY) + currentChunk.getCliffHeightAt(MapTool.currentTileX, MapTool.currentTileY), 1f +   10f*(float)MapTool.currentChunkY + MapTool.currentTileY}
+                    new float[] {1f +   xTiles, elevation, 0.0f + yTiles}, 
+                    new float[] {0.0f + xTiles, elevation, 0.0f + yTiles},
+                    new float[] {0.0f + xTiles, elevation, 1f +   yTiles}, 
+                    new float[] {1f +   xTiles, elevation, 1f +   yTiles}
                 );
             }
         }

@@ -1,8 +1,6 @@
 package enemies;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-
-import com.jogamp.math.geom.plane.AffineTransform;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.texture.Texture;
@@ -19,9 +17,6 @@ public class Bee extends Enemy{
     private double timeTilNextDirectionUpdate = 5;
     double xAccel = 0.001;
     double yAccel = 0.001;
-
-    
-
 
     private int lastAggro = (int) System.currentTimeMillis() - 10000;
     private int aggroTime = 5000;

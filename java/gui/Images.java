@@ -2,7 +2,6 @@ package gui;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.security.spec.ECFieldF2m;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
@@ -45,8 +44,8 @@ public class Images {
             // Get the contents of the folder
             File[] contents = folder.listFiles();
             // Search the contents of the folder for images
-            for(int i = 0; i < contents.length; i++){
-                recursiveImageLoad(contents[i].getAbsolutePath());
+            for (File content : contents) {
+                recursiveImageLoad(content.getAbsolutePath());
             }
         }
         // If folder is an image...

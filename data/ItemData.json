@@ -24,7 +24,7 @@
             "name": "Slime sandwich",
             "type": "dish",
             "image": "slimesandwich",
-            "cookTime": "15000",
+            "cookTime": "200000",
             "events": [
                 "stir",
                 "flip"

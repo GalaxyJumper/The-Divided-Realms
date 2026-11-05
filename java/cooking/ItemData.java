@@ -18,7 +18,7 @@ public class ItemData {
             itemsArray = (JSONArray) jsonObject.get("items");
             for(int i = 0; i < itemsArray.size(); i++){
                 JSONObject item = (JSONObject) itemsArray.get(i);
-                
+                // Three types of item: ingredients, dishes, and both.
                 if(item.get("type").equals("ingredient")){
                     ingredientsArray.add((String) item.get("name"));
 
@@ -37,7 +37,7 @@ public class ItemData {
     }
     public static String[] getItemData(int index) {
         if (index < 0 || index >= itemsArray.size()) {
-            return null;
+            return new String[0];
         }
         JSONObject item = (JSONObject) itemsArray.get(index);
         String[] data = new String[item.size()];

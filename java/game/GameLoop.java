@@ -2,8 +2,6 @@ package game;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.jogamp.common.util.SourcedInterruptedException;
-
 import cooking.CookingSystem;
 import cooking.ItemData;
 import cooking.CookingPot;
@@ -47,8 +45,9 @@ public class GameLoop {
                 input = new Input();
                 Renderer.init();
                 
-                for(int i = 0; i < 10; i++){
-                    enemies.add(new Slime(5 + Math.random() * 20, 5 + Math.random() * 20));
+                for(int i = 0; i < 25; i++){
+                    enemies.add(new Slime(5 + Math.random() * 10, 5 + Math.random() * 10));
+                    System.out.println(i);
                 }
                 for(int i = 0; i < 12; i++){
                     enemies.add(new Bee(5 + Math.random() * 20, 5 + Math.random() * 20));
@@ -102,12 +101,14 @@ public class GameLoop {
                         }
                     }
                     CookingSystem.update();
+                    
                     Renderer.renderGame();
                     Player.update(input);
                     framesThisSecond ++;
+                    lastFrameTimes[2] = lastFrameTimes[1];
                     lastFrameTimes[1] = lastFrameTimes[0];
                     lastFrameTimes[0] = System.nanoTime();
-                    deltaTime = (lastFrameTimes[0] - lastFrameTimes[1]) / 16666667.0;
+                    deltaTime = ((lastFrameTimes[0] - lastFrameTimes[1]) + (lastFrameTimes[1] - lastFrameTimes[2])) / (16666667.0 * (lastFrameTimes.length - 1));
                 }
             }
         };

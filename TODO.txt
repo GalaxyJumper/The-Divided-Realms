@@ -1,3 +1,6 @@
+THE DIVIDED REALMS: A bullet-hell game that combines roguelike and cooking game elements
+
+
 TODO LIST
 
     - Cliffs

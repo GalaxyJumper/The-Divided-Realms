@@ -1,10 +1,15 @@
 {
     "java.project.referencedLibraries": [
-        
-        "lib/gluegen-rt.jar",
-        "lib/gluegen-rt-natives-windows-amd64.jar",
-        "lib/jogl-all.jar",
-        "lib/jogl-all-natives-windows-amd64.jar",
-        "lib/*.jar"
+        "c:\\Users\\Default.OLIVER-LAPTOP\\Java Projects\\The-Divided-Realms\\lib\\json-simple-1.1.1.jar",
+        "c:\\Users\\Default.OLIVER-LAPTOP\\Java Projects\\The-Divided-Realms\\lib\\jogl-all.jar",
+        "c:\\Users\\Default.OLIVER-LAPTOP\\Java Projects\\The-Divided-Realms\\lib\\jogl-all-natives-windows-amd64.jar",
+        "c:\\Users\\Default.OLIVER-LAPTOP\\Java Projects\\The-Divided-Realms\\lib\\gluegen-rt.jar",
+        "c:\\Users\\Default.OLIVER-LAPTOP\\Java Projects\\The-Divided-Realms\\lib\\jogl-all-natives-linux-amd64.jar",
+        "c:\\Users\\Default.OLIVER-LAPTOP\\Java Projects\\The-Divided-Realms\\lib\\gluegen-rt-natives-windows-amd64.jar",
+        "c:\\Users\\Default.OLIVER-LAPTOP\\Java Projects\\The-Divided-Realms\\lib\\gluegen-rt-natives-linux-amd64.jar"
+    ],
+    "java.debug.settings.vmArgs": "--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED --illegal-access=permit",
+    "java.project.sourcePaths": [
+        "java"
     ]
 }
